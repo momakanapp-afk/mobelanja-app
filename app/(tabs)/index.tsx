@@ -1,19 +1,58 @@
 import SafeScreen from '@/components/SafeScreen';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  Image,
+  ScrollView, StyleSheet, Text,
+  TextInput, TouchableOpacity, View
+} from 'react-native';
+
+interface categories {
+  name: string;
+  image: number;
+}
 
 const CATEGORIES = [
-  { name: "All", icon: "grid-outline" as const },
-  { name: "Electronics", image: require("@/assets/images/electronics.png") },
+  { name: "Gadget", image: require("@/assets/images/electronics.png") },
   { name: "Fashion", image: require("@/assets/images/fashion.png") },
   { name: "Sports", image: require("@/assets/images/sports.png") },
   { name: "Books", image: require("@/assets/images/books.png") },
 ];
 
-const ShopScreen = () => {
+const styles = StyleSheet.create({
+    container: {
+      paddingVertical: 10,
+      marginLeft: 20
+    },
+    logo: {
+      width: 24,
+      height: 24,
+      marginBottom: 8,
+    },
+  });
+
+  const ShopScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const renderItem = ({ item }:{item:categories}) => (
+  <TouchableOpacity
+    key={item.name}
+    onPress={() => setSelectedCategory(item.name)}
+    className={`mr-4 rounded-2xl overflow-hidden items-center justify-center 
+      ${selectedCategory === item.name ? "bg-primary" : "bg-surface"}`}
+    style = {
+      {width:100,height:100,borderRadius:14}
+    }
+  >
+      <Image source={item.image} className="size-12 mb-2" resizeMode="cover" />
+      <Text className={`text-lg text-center leading-tight
+        ${selectedCategory === item.name ? "text-black font-bold" : "text-white font-normal"}`}
+      > {item.name}
+      </Text>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeScreen>
@@ -31,8 +70,8 @@ const ShopScreen = () => {
               <Text className="text-text-primary text-3xl font-bold tracking-tight">MoBelanja</Text>
               <Text className="text-text-secondary text-sm mt-1">Toko pilihan anda beserta produknya</Text>
             </View>
-            <TouchableOpacity className="bg-surface/50 p-3 rounded-full" activeOpacity={0.7}>
-              <Ionicons name="options-outline" size={22} color={"#fff"} />
+            <TouchableOpacity className="bg-surface p-3 rounded-full" activeOpacity={0.7}>
+              <Ionicons name="add-outline" size={24} color={"#fff"} />
             </TouchableOpacity>
           </View>
         </View>  
@@ -49,39 +88,20 @@ const ShopScreen = () => {
           />
         </View>
 
-        {/* CATEGORY FILTER */}
-        <View className="mb-6">
-          <ScrollView
-            horizontal
+        <View style={styles.container}>
+          <FlatList
+            data={CATEGORIES}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.name}
+            horizontal={true} 
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20 }}
-          >
-            {CATEGORIES.map((category) => {
-              const isSelected = selectedCategory === category.name;
-              return (
-                <TouchableOpacity
-                  key={category.name}
-                  onPress={() => setSelectedCategory(category.name)}
-                  className={`mr-3 rounded-2xl size-20 overflow-hidden items-center justify-center ${isSelected ? "bg-primary" : "bg-surface"}`}
-                >
-                  {category.icon ? (
-                    <Ionicons
-                      name={category.icon}
-                      size={36}
-                      color={isSelected ? "#121212" : "#fff"}
-                    />
-                  ) : (
-                    <Image source={category.image} className="size-12" resizeMode="contain" />
-                  )}
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+          />
         </View>
         
       </ScrollView>
     </SafeScreen>
-  )
+  );
+
 }
 
 export default ShopScreen
