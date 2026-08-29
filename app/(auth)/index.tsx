@@ -65,7 +65,7 @@ const AuthScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <Text className="text-center text-gray-500 text-xs leading-4 mt-6 px-2">
+      <Text className="text-center text-gray-500 text-xs leading-4 mt-6 px-8">
         Dengan Mendaftar berarti anda setuju dengan  <Text className="text-blue-500">Ketentuan</Text>
         {" dan "}
         <Text className="text-blue-500">Kebijakan Privasi Kami</Text>
