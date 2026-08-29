@@ -1,5 +1,19 @@
+import { ClerkProvider } from '@clerk/expo';
+import { tokenCache } from '@clerk/expo/token-cache';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 
+const queryClient = new QueryClient();
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
+
+if (!publishableKey) {
+  throw new Error('Clerk publish key not found (env)')
+}
+
 export default function RootLayout() {
-  return <Stack screenOptions={{headerShown:false}} />;
+  return <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+  <QueryClientProvider client={queryClient}>
+    <Stack screenOptions={{headerShown:false}} />
+  </QueryClientProvider> 
+  </ClerkProvider>;
 }
