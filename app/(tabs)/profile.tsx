@@ -1,11 +1,12 @@
+import SafeScreen from '@/components/SafeScreen'
 import React from 'react'
-import { Text, View } from 'react-native'
+import { Text } from 'react-native'
 
 const ProfileScreen = () => {
   return (
-    <View>
-      <Text>ProfileScreen</Text>
-    </View>
+    <SafeScreen>
+      <Text className='text-white'>Profil Pengguna</Text>
+    </SafeScreen>
   )
 }
 
