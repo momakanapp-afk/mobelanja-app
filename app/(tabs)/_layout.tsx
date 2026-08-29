@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons"
 import { Redirect, Tabs } from 'expo-router'
 import React from 'react'
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import "../global.css"
 
 const TabsLayout = () => {
 
