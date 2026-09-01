@@ -8,8 +8,6 @@ export interface Product {
   images: string[];
   averageRating: number;
   totalReviews: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface User {
