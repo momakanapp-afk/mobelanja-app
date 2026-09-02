@@ -4,7 +4,6 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
 
 // Wajib dipanggil untuk mengizinkan WebBrowser menangani callback auth secara otomatis
 WebBrowser.maybeCompleteAuthSession();
@@ -67,20 +66,15 @@ function InitialLayout() {
   // Panggil fungsi pengarah/proteksi rute
   useProtectedRoute();
 
-  // Tampilkan indikator loading saat Clerk memverifikasi sesi awal aplikasi
   if (!isLoaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
+    return null;
   }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
-      {/* Mendaftarkan rute sso-callback secara eksplisit agar Expo Router mengenali URL callback */}
+      {/* Mendaftarkan rute sso-callback secara eksplisit */}
       <Stack.Screen name="sso-callback" />
     </Stack>
   );

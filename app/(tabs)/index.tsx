@@ -1,15 +1,15 @@
 import ProductsGrid from '@/components/ProductsGrid';
 import SafeScreen from '@/components/SafeScreen';
+import useDebounce from '@/hooks/useDebounce';
 import useProducts from '@/hooks/useProducts';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-
-
+import React, { useMemo, useState } from 'react';
 import {
   FlatList, Image,
   StyleSheet, Text,
   TextInput, TouchableOpacity, View
 } from 'react-native';
+
 
   interface categories {
     name: string;
@@ -41,6 +41,29 @@ const ShopScreen = () =>
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const { data: listproduk = [], isLoading, isError, error } = useProducts();
+
+  // Teknik debounce request search
+  const debouncedQuery = useDebounce(searchQuery, 700);
+  const filteredProducts = useMemo(() => 
+  {
+    if (!listproduk) return [];
+
+    let filtered = listproduk;
+
+    // filtering by category
+    // if (selectedCategory !== "All") {
+    //   filtered = filtered.filter((product) => product.category === selectedCategory);
+    // }
+
+    // filtering by searh query
+    if (searchQuery.trim()) {
+      filtered = filtered.filter((product) =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    return filtered;
+  }, [listproduk, selectedCategory, debouncedQuery]);
 
   if (isError) {
     console.log(error);
@@ -98,8 +121,8 @@ const ShopScreen = () =>
       <View className="bg-surface mb-4 flex-row items-center mx-2 px-4 rounded-2xl">
         <Ionicons color={"#666"} size={22} name="search" />
         <TextInput
-          className="flex-1 ml-3 text-2xl text-text-primary"
-          placeholder="Cari yang anda butuhkan"
+          className="flex-1 ml-3 text-xl text-text-primary"
+          placeholder="Pencarian"
           placeholderTextColor={"#666"}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -108,7 +131,7 @@ const ShopScreen = () =>
 
       <View>
         <ProductsGrid 
-          products={listproduk}
+          products={filteredProducts}
           isLoading={isLoading}
           isError = {isError}
           header={renderHeader}

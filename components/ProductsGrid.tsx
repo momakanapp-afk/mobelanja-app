@@ -1,5 +1,3 @@
-// import useCart from "@/hooks/useCart";
-// import useWishlist from "@/hooks/useWishlist";
 import { Product } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -21,14 +19,17 @@ interface ProductsGridProps {
 
 const styles = StyleSheet.create({
   flatListContent: {
-    paddingBottom: 250, // Sesuaikan jumlah padding bawah yang diinginkan
+    paddingBottom: 250, 
   },
 });
 
-const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProps) => {
+const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProps) => 
+{
   // const { isInWishlist, toggleWishlist, isAddingToWishlist, isRemovingFromWishlist } =
   //   useWishlist();
+
   // const { isAddingToCart, addToCart } = useCart();
+
   // const handleAddToCart = (productId: string, productName: string) => {
   //   addToCart(
   //     { productId, quantity: 1 },
@@ -43,7 +44,8 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
   //   );
   // };
 
-  const renderProduct = ({ item: product }: { item: Product }) => (
+  const renderProduct = ({ item: product }: { item: Product }) => 
+  (
     <TouchableOpacity
       className="bg-surface rounded-3xl overflow-hidden mb-3"
       style={{ width: "48%" }}
@@ -64,21 +66,17 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
           // disabled={isAddingToWishlist || isRemovingFromWishlist}
         >
             <Ionicons
-              name="heart-outline"
-              size={18}
-              color="#FFFFFF"
-            />
+              name="heart-outline" size={18} color="#FFFFFF" />
           
-          {/* {isAddingToWishlist || isRemovingFromWishlist ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <Ionicons
-              name={isInWishlist(product._id) ? "heart" : "heart-outline"}
-              size={18}
-              color={isInWishlist(product._id) ? "#FF6B6B" : "#FFFFFF"}
-            />
-          )} */}
-
+            {/* {isAddingToWishlist || isRemovingFromWishlist ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Ionicons
+                name={isInWishlist(product._id) ? "heart" : "heart-outline"}
+                size={18}
+                color={isInWishlist(product._id) ? "#FF6B6B" : "#FFFFFF"}
+              />
+            )} */}
         </TouchableOpacity>
       </View>
 
@@ -109,7 +107,7 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
             {/* {isAddingToCart ? (
               <ActivityIndicator size="small" color="#121212" />
             ) : (
-              <Ionicons name="add" size={18} color="#121212" />
+              <Ionicons name="cart" size={26} color="#121212" />
             )} */}
           </TouchableOpacity>
         </View>
@@ -121,7 +119,7 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
     return (
       <View className="py-20 items-center justify-center">
         <ActivityIndicator size="large" color="#00D9FF" />
-        <Text className="text-text-secondary mt-4">Loading products...</Text>
+        <Text className="text-text-secondary text-xl mt-4">Memuat Daftar Barang</Text>
       </View>
     );
   }
@@ -129,9 +127,9 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
   if (isError) {
     return (
       <View className="py-20 items-center justify-center">
-        <Ionicons name="alert-circle-outline" size={48} color="#FF6B6B" />
-        <Text className="text-text-primary font-semibold mt-4">Failed to load products</Text>
-        <Text className="text-text-secondary text-sm mt-2">Please try again later</Text>
+        <Ionicons name="alert-circle-outline" size={60} color="#FF6B6B" />
+        <Text className="text-text-primary text-xl font-semibold mt-4">Gagal memuat daftar</Text>
+        <Text className="text-text-secondary text-base mt-2">Silahkan coba kembali</Text>
       </View>
     );
   }
@@ -157,9 +155,9 @@ export default ProductsGrid;
 function NoProductsFound() {
   return (
     <View className="py-20 items-center justify-center">
-      <Ionicons name="search-outline" size={48} color={"#666"} />
-      <Text className="text-text-primary font-semibold mt-4">No products found</Text>
-      <Text className="text-text-secondary text-sm mt-2">Try adjusting your filters</Text>
+      <Ionicons name="search-outline" size={60} color={"#666"} />
+      <Text className="text-text-primary text-xl font-semibold mt-4">Hasil Tidak ditemukan</Text>
+      <Text className="text-text-secondary text-base mt-2">Coba dengan pencarian lain</Text>
     </View>
   );
 }

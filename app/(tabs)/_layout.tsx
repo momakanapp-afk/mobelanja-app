@@ -1,21 +1,10 @@
-import { useAuth } from "@clerk/expo"
 import { Ionicons } from "@expo/vector-icons"
-import { router, Tabs } from 'expo-router'
+import { Tabs } from 'expo-router'
 import React from 'react'
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import "../global.css"
 
 const TabsLayout = () => {
-
-  const {isSignedIn, isLoaded} = useAuth()
-
-  if (!isLoaded) return null;
-  if (!isSignedIn) 
-  {
-    router.replace('/(auth)');
-    return null;
-  }
-
 
   const insets  = useSafeAreaInsets();
   
@@ -28,10 +17,11 @@ const TabsLayout = () => {
         tabBarInactiveTintColor: "#B3B3B3",
         tabBarStyle: {
           position: 'absolute',
-        backgroundColor:'#202020',
+        backgroundColor:'#444',
           borderTopWidth: 0,
-          height:  38 + insets.bottom,
+          height:  22 + insets.bottom,
           paddingTop: 4,
+          paddingBottom: 2,
           marginHorizontal: 70,
           marginBottom: insets.bottom,
           borderRadius: 16,
