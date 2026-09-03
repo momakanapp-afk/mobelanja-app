@@ -1,29 +1,35 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "@/lib/api";
 import { Cart } from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 const useCart = () => {
   const api = useApi();
   const queryClient = useQueryClient();
 
-  const {
-    data: cart,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: cart, isLoading, isError, } = useQuery({
     queryKey: ["cart"],
     queryFn: async () => {
-      const { data } = await api.get<{ cart: Cart }>("/cart");
+      const { data } = await api.get<{ cart: Cart }>("/cart.php");
       return data.cart;
     },
   });
+  
 
+  const [prosesAddCart,setProsesAddCart] = useState("");
+  
   const addToCartMutation = useMutation({
-    mutationFn: async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
-      const { data } = await api.post<{ cart: Cart }>("/cart", { productId, quantity });
+    mutationFn: async ({ productId }: { productId: string }) => {
+      setProsesAddCart(productId);
+      const { data } = await api.post<{ cart: Cart }>("/cart.php", {
+        'id':  productId
+      });
       return data.cart;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
+    onSuccess: () => {
+      setProsesAddCart("");
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    }
   });
 
   const updateQuantityMutation = useMutation({
@@ -50,22 +56,16 @@ const useCart = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
   });
 
-  const cartTotal =
-    cart?.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0) ?? 0;
-
-  const cartItemCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
   return {
     cart,
     isLoading,
     isError,
-    cartTotal,
-    cartItemCount,
     addToCart: addToCartMutation.mutate,
     updateQuantity: updateQuantityMutation.mutate,
     removeFromCart: removeFromCartMutation.mutate,
     clearCart: clearCartMutation.mutate,
-    isAddingToCart: addToCartMutation.isPending,
+    isAddingToCart: prosesAddCart,
     isUpdating: updateQuantityMutation.isPending,
     isRemoving: removeFromCartMutation.isPending,
     isClearing: clearCartMutation.isPending,
