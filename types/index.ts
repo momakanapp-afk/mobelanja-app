@@ -80,6 +80,7 @@ export interface Review {
 export interface Cart {
   _id: string;
   clerkId: string;
+  subTotal: number;
   items: CartItem[];
 }
 

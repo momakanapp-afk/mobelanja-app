@@ -10,12 +10,14 @@ interface tipeTIC {
   defVal: string;
   prodId: string;
   namaBrg: string;
+  dynTotal: (subTotal:number)=>void
 } 
 
-const TextInputCart = ({defVal,prodId,namaBrg}:tipeTIC) => {
+const TextInputCart = ({defVal,prodId,namaBrg,dynTotal}:tipeTIC) => {
 
+  // Wajib, gunakan useState dalam body yg akan di export
   const[textVal,setTextVal] = useState('')
-  const {updateQuantity,isUpdating,removeFromCart,isRemoving} = useCart()
+  const {updateQuantity,removeFromCart,isRemoving,subTotal,isUpdating} = useCart()
 
   const handleQuantityChange = (inc:'+'|'-') => {
   const newQuantity = (inc==='+') ? Number(textVal) + 1 : (Number(textVal) - 1);
@@ -23,6 +25,11 @@ const TextInputCart = ({defVal,prodId,namaBrg}:tipeTIC) => {
     setTextVal(String(newQuantity))
   };
   const toast = useToast();
+
+  // Lifting state up: untuk interaktif subtotal di cart screen 
+  const handleDynTotal = ()=> {
+    if (subTotal) dynTotal(subTotal)
+  }
 
   const ubahQty = (teks:string)=>
   {
@@ -63,29 +70,15 @@ const TextInputCart = ({defVal,prodId,namaBrg}:tipeTIC) => {
     ]);
   };
 
-  // Pop Up Toast saat menghitung ulang
-  // const idToast = useRef<string|null>(null)
-  // useEffect(()=>{
-  //   if (isUpdating) {
-  //     idToast.current = toast.warning('Menghitung total...', {
-  //       duration: Infinity, 
-  //     });
-  //   } else if (idToast.current) {
-  //     toast.dismiss(idToast.current)
-  //   }
-  //   // Cleanup jika komponen di-unmount saat masih loading
-  //   return () => {
-  //     if (idToast.current) {
-  //       toast.dismiss(idToast.current);
-  //     }
-  //   };
-  // },[isUpdating])
-
   // Debounce update interatif jumlah ke server
   const debJml = useDebounce(textVal, 250);
   useEffect(()=>{
     updateQuantity({productId:prodId,quantity:Number(debJml)})
   },[debJml])
+
+  useEffect(()=>{
+    handleDynTotal()
+  },[isUpdating,isRemoving])
 
   // Init jumlah default
   useEffect(()=>{

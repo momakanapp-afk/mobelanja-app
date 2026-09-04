@@ -52,7 +52,7 @@ export default function OrderSummary({ subtotal, shipping, tax, total }: OrderSu
           {/* Total */}
           <View className="flex-row justify-between items-center">
             <Text className="text-text-primary font-bold text-lg">Total</Text>
-            <Text className="text-primary font-bold text-2xl">
+            <Text className="text-primary font-bold text-xl">
               {formatRupiah(total)}
             </Text>
           </View>

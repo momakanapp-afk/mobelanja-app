@@ -5,6 +5,7 @@ import useCart from "@/hooks/useCart";
 import { useApi } from "@/lib/api";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { ToastContainer } from "rn-toastify";
 
@@ -14,20 +15,21 @@ const CartScreen = () => {
     cart,
     isError,
     isLoading,
-    isRemoving,
-    isUpdating,
-    removeFromCart,
-    subTotal:total
   } = useCart();
 
   // const { addresses } = useAddresses();
 
   // const [addressModalVisible, setAddressModalVisible] = useState(false);
 
+  const [total,setTotal] = useState(0);
+
   const cartItems = cart?.items || [];
   const shipping = 0
   const tax = 0
 
+  const handleDynTotal = (subT:number)=>{
+    setTotal(subT)
+  }
 
   function formatRupiah(angka: number): string {
     return new Intl.NumberFormat('id-ID', {
@@ -37,7 +39,6 @@ const CartScreen = () => {
       maximumFractionDigits: 0,
     }).format(angka).replace('Rp', 'Rp.');
   }
-
 
   if (isLoading) return <LoadingUI />;
   if (isError) return <ErrorUI />;
@@ -86,9 +87,9 @@ const CartScreen = () => {
                       >
                         {item.product.name}
                       </Text>
-                      {/* HARGA & KETR/item */}
+                      {/* HARGA */}
                       <View className="mt-2">
-                        <Text className="text-primary font-bold text-xl text-left">
+                        <Text className="text-primary font-bold text-lg text-left">
                           {formatRupiah(item.product.price * item.quantity)}
                         </Text>
                       </View>
@@ -98,6 +99,7 @@ const CartScreen = () => {
                       defVal={String(item.quantity)}
                       prodId={item.product._id}
                       namaBrg={item.product.name}
+                      dynTotal={handleDynTotal}
                     />
                     
                     <View>
@@ -114,7 +116,12 @@ const CartScreen = () => {
           })}
         </View>
 
-        <OrderSummary subtotal={total} shipping={shipping} tax={tax} total={total} />
+        <OrderSummary 
+          subtotal={total} 
+          shipping={shipping} 
+          tax={tax} 
+          total={total} 
+        />
       </ScrollView>
 
       <View
