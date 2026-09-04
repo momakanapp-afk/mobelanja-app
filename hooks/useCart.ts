@@ -17,7 +17,6 @@ const useCart = () => {
   
 
   const [prosesAddCart,setProsesAddCart] = useState("");
-  
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId }: { productId: string }) => {
       setProsesAddCart(productId);
@@ -40,12 +39,22 @@ const useCart = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
   });
 
+  const [menghapusItem,setMenghapusItem] = useState("");
   const removeFromCartMutation = useMutation({
     mutationFn: async (productId: string) => {
-      const { data } = await api.delete<{ cart: Cart }>(`/cart/${productId}`);
+      // parameter data delete() berbeda dengan  post()
+      setMenghapusItem(productId);
+      const { data } = await api.delete<{ cart: Cart }>(`/cart.php`,{
+        data: {
+          'id':  productId
+        }
+      });
       return data.cart;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
+    onSuccess: () => {
+      setMenghapusItem("");
+      queryClient.invalidateQueries({ queryKey: ["cart"] })
+    },
   });
 
   const clearCartMutation = useMutation({
@@ -67,7 +76,7 @@ const useCart = () => {
     clearCart: clearCartMutation.mutate,
     isAddingToCart: prosesAddCart,
     isUpdating: updateQuantityMutation.isPending,
-    isRemoving: removeFromCartMutation.isPending,
+    isRemoving: menghapusItem,
     isClearing: clearCartMutation.isPending,
   };
 };

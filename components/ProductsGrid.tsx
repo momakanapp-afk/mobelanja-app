@@ -12,13 +12,6 @@ import {
 } from "react-native";
 import useToast from 'rn-toastify';
 
-interface ProductsGridProps {
-  isLoading: boolean;
-  isError: boolean;
-  products: Product[];
-  header: () => React.ReactElement;
-}
-
 const styles = StyleSheet.create({
   flatListContent: {
     paddingBottom: 250, 
@@ -32,6 +25,14 @@ const masuKeranjang = (barang:string) => {
     duration: 3500,
   });
 };
+
+
+interface ProductsGridProps {
+  isLoading: boolean;
+  isError: boolean;
+  products: Product[];
+  header: () => React.ReactElement;
+}
 
 
 const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProps) => 
@@ -93,7 +94,6 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
               onPress= {() => handleAddToCart(product._id, product.name)}
               disabled={isLoadingCart}
             >
-            {/* <Ionicons name="cart" size={26} color="#121212" /> */}
             {isLoadingCart ? (
                 <ActivityIndicator size="small" color="#121212" />
               ) : (
@@ -140,8 +140,6 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
   );
 };
 
-export default ProductsGrid;
-
 function NoProductsFound() {
   return (
     <View className="py-20 items-center justify-center">
@@ -151,3 +149,5 @@ function NoProductsFound() {
     </View>
   );
 }
+
+export default ProductsGrid;
