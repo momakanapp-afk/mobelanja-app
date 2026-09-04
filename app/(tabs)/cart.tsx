@@ -1,11 +1,11 @@
 import OrderSummary from "@/components/OrderSummary";
 import SafeScreen from "@/components/SafeScreen";
+import TextInputCart from "@/components/TextInputCart";
 import useCart from "@/hooks/useCart";
 import { useApi } from "@/lib/api";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { ToastContainer } from "rn-toastify";
 
 const CartScreen = () => {
@@ -17,34 +17,26 @@ const CartScreen = () => {
     isRemoving,
     isUpdating,
     removeFromCart,
-    updateQuantity,} = useCart();
+    subTotal:total
+  } = useCart();
 
   // const { addresses } = useAddresses();
 
-  const [addressModalVisible, setAddressModalVisible] = useState(false);
+  // const [addressModalVisible, setAddressModalVisible] = useState(false);
 
   const cartItems = cart?.items || [];
-  const subtotal = 0;
-  const shipping = 0; // shipping fee
-  const tax = subtotal * 0.08; // 8% tax
-  const total = subtotal + shipping + tax;
+  const shipping = 0
+  const tax = 0
 
-  const handleQuantityChange = (productId: string, currentQuantity: number, change: number) => {
-    const newQuantity = currentQuantity + change;
-    if (newQuantity < 1) return;
-    updateQuantity({ productId, quantity: newQuantity });
-  };
 
-  const handleRemoveItem = (productId: string, productName: string) => {
-    Alert.alert("Hapus", `Hapus ${productName} dari keranjang ?`, [
-      { text: "Batal", style: "cancel" },
-      {
-        text: "Hapus",
-        style: "destructive",
-        onPress: () => removeFromCart(productId),
-      },
-    ]);
-  };
+  function formatRupiah(angka: number): string {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(angka).replace('Rp', 'Rp.');
+  }
 
 
   if (isLoading) return <LoadingUI />;
@@ -54,7 +46,9 @@ const CartScreen = () => {
 
   return (
     <SafeScreen>
-      <Text className="px-6 pb-5 text-text-primary text-3xl font-bold tracking-tight">Cart</Text>
+      <Text className="px-6 pb-5 text-text-primary text-2xl font-bold tracking-tight">
+        Keranjang belanja
+      </Text>
 
       <ScrollView
         className="flex-1"
@@ -64,9 +58,10 @@ const CartScreen = () => {
         <View className="px-6 gap-2">
 
           { cartItems.map((item) => {
-            const loadProsesRemove = isRemoving===item.product._id
             return (
               <View key={item._id} className="bg-surface rounded-3xl overflow-hidden ">
+
+                {/* BLOK IMAGE */}
                 <View className="p-4 flex-row">
                   {/* product image */}
                   <View className="relative">
@@ -81,7 +76,9 @@ const CartScreen = () => {
                     </View>
                   </View>
 
+                  {/* BLOK SAMPING IMAGE */}
                   <View className="flex-1 ml-4">
+                    {/* NAMA ITEM */}
                     <View>
                       <Text
                         className="text-text-primary font-bold text-lg leading-tight"
@@ -89,32 +86,27 @@ const CartScreen = () => {
                       >
                         {item.product.name}
                       </Text>
+                      {/* HARGA & KETR/item */}
                       <View className="mt-2">
                         <Text className="text-primary font-bold text-xl text-left">
-                          ${(item.product.price * item.quantity)}
-                        </Text>
-                        <Text className="text-text-secondary text-sm ml-2">
-                          ${item.product.price} /item
+                          {formatRupiah(item.product.price * item.quantity)}
                         </Text>
                       </View>
                     </View>
-
-                    <View className="flex-row items-center mt-3">
-                      {/* KOMPONEN INPUT JML */}
-
-                      <TouchableOpacity
-                        className="ml-auto bg-red-500/10 rounded-full w-9 h-9 items-center justify-center"
-                        activeOpacity={0.7}
-                        onPress={() => handleRemoveItem(item.product._id, item.product.name)}
-                        disabled={loadProsesRemove}
-                      >
-                        {loadProsesRemove ? (
-                          <ActivityIndicator size="small" color="#EF4444" />
-                        ) : (
-                          <Ionicons name="trash-outline" size={28} color="#EF4444" />
-                        )}
-                      </TouchableOpacity>
+                    {/* EDITOR QTY BARANG */}
+                    <TextInputCart 
+                      defVal={String(item.quantity)}
+                      prodId={item.product._id}
+                      namaBrg={item.product.name}
+                    />
+                    
+                    <View>
+                      <Text className="text-text-secondary text-sm">
+                        {formatRupiah(item.product.price)} /pcs 
+                      </Text>
                     </View>
+
+                    
                   </View>
                 </View>
               </View>
@@ -122,7 +114,7 @@ const CartScreen = () => {
           })}
         </View>
 
-        <OrderSummary subtotal={subtotal} shipping={shipping} tax={tax} total={total} />
+        <OrderSummary subtotal={total} shipping={shipping} tax={tax} total={total} />
       </ScrollView>
 
       <View
@@ -138,7 +130,9 @@ const CartScreen = () => {
             </Text>
           </View>
           <View className="flex-row items-center">
-            <Text className="text-text-primary font-bold text-xl">${total}</Text>
+            <Text className="text-text-primary font-bold text-xl">
+              {formatRupiah(total)}
+            </Text>
           </View>
         </View>
 
@@ -166,8 +160,6 @@ const CartScreen = () => {
     </SafeScreen>
   );
 };
-
-export default CartScreen;
 
 function LoadingUI() {
   return (
@@ -206,3 +198,6 @@ function EmptyUI() {
     </View>
   );
 }
+
+export default CartScreen;
+
