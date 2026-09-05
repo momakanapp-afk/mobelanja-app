@@ -56,13 +56,13 @@ const TabsLayout = () => {
           tabBarIcon: ({color,size}) => <Ionicons name="person" size={size} color={color} />
         }}
       />
-      <Tabs.Screen 
+      {/* <Tabs.Screen 
         name='localUx' 
         options={{
           title: 'Local',
           tabBarIcon: ({color,size}) => <Ionicons name="desktop" size={size} color={color} />
         }}
-      />
+      /> */}
 
     </Tabs>
   )

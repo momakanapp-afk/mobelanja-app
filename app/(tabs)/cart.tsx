@@ -41,7 +41,6 @@ const CartScreen = () => {
     }
     if (cartItems===undefined) return
     syncCart(cartItems);
-    console.log("Sync event")
     
   },[cartItems])
 
