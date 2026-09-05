@@ -3,7 +3,8 @@ import axios from "axios";
 import { useEffect } from "react";
 
 // Simulator hanya membaca IP PC dan tanpa https
-const API_URL = "http://192.168.8.111:8114";
+// const API_URL = "http://192.168.8.111:8114";
+const API_URL = "http://10.106.20.78:8114";
 
 const api = axios.create({
   baseURL: API_URL,

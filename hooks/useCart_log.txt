@@ -1,0 +1,34 @@
+const updateQuantityMutation = useMutation({
+    mutationFn: async ({ productId, quantity }: { productId: string; quantity: number }) => {
+      const { data } = await api.put<{ cart: Cart}>(`/cart.php`, 
+        { 
+          id: productId,
+          qty: quantity
+        });
+      return data.cart;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
+  });
+
+  const removeFromCartMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      // parameter data delete() berbeda dengan  post()
+      const { data } = await api.delete<{ cart: Cart }>(`/cart.php`,{
+        data: {
+          'id':  productId
+        }
+      });
+      return data.cart;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] })
+    },
+  });
+
+  const clearCartMutation = useMutation({
+    mutationFn: async () => {
+      const { data } = await api.delete<{ cart: Cart }>("/cart");
+      return data.cart;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
+  });

@@ -1,4 +1,3 @@
-import useCart from '@/hooks/useCart';
 import useDebounce from '@/hooks/useDebounce';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
@@ -10,14 +9,13 @@ interface tipeTIC {
   defVal: string;
   prodId: string;
   namaBrg: string;
-  dynTotal: (subTotal:number)=>void
+  dynEvent: (event:string,prodId:string,qty:number)=>void;
 } 
 
-const TextInputCart = ({defVal,prodId,namaBrg,dynTotal}:tipeTIC) => {
+const TextInputCart = ({defVal,prodId,namaBrg,dynEvent}:tipeTIC) => {
 
-  // Wajib, gunakan useState dalam body yg akan di export
+  // Wajib, gunakan Hooks dalam body yg akan di export
   const[textVal,setTextVal] = useState('')
-  const {updateQuantity,removeFromCart,isRemoving,subTotal,isUpdating} = useCart()
 
   const handleQuantityChange = (inc:'+'|'-') => {
   const newQuantity = (inc==='+') ? Number(textVal) + 1 : (Number(textVal) - 1);
@@ -26,9 +24,9 @@ const TextInputCart = ({defVal,prodId,namaBrg,dynTotal}:tipeTIC) => {
   };
   const toast = useToast();
 
-  // Lifting state up: untuk interaktif subtotal di cart screen 
-  const handleDynTotal = ()=> {
-    if (subTotal) dynTotal(subTotal)
+  // Lifting state up: untuk interaktif di cart screen 
+  const handleDynEvent = (ev:string,pid:string,qty:number)=> {
+    dynEvent(ev,pid,qty)
   }
 
   const ubahQty = (teks:string)=>
@@ -65,20 +63,16 @@ const TextInputCart = ({defVal,prodId,namaBrg,dynTotal}:tipeTIC) => {
       {
         text: "Hapus",
         style: "destructive",
-        onPress: () => removeFromCart(productId),
+        onPress: () => handleDynEvent('removeFromCart',productId,0),
       },
     ]);
   };
 
   // Debounce update interatif jumlah ke server
-  const debJml = useDebounce(textVal, 250);
+  const debJml = useDebounce(textVal, 300);
   useEffect(()=>{
-    updateQuantity({productId:prodId,quantity:Number(debJml)})
+    handleDynEvent('updateQuantity',prodId,Number(debJml));
   },[debJml])
-
-  useEffect(()=>{
-    handleDynTotal()
-  },[isUpdating,isRemoving])
 
   // Init jumlah default
   useEffect(()=>{
@@ -115,7 +109,6 @@ const TextInputCart = ({defVal,prodId,namaBrg,dynTotal}:tipeTIC) => {
       className="ml-3 bg-red-500/20 rounded-full w-9 h-9 items-center justify-center"
       activeOpacity={0.5}
       onPress={() => handleRemoveItem(prodId, namaBrg)}
-      disabled={isRemoving}
     >
       <Ionicons name="trash-outline" size={24} color="#EF4444" />
     </TouchableOpacity>

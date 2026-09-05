@@ -19,10 +19,10 @@ const TabsLayout = () => {
           position: 'absolute',
         backgroundColor:'#444',
           borderTopWidth: 0,
-          height:  22 + insets.bottom,
+          height:  insets.bottom + 15,
           paddingTop: 4,
           paddingBottom: 2,
-          marginHorizontal: 70,
+          marginHorizontal: 50,
           marginBottom: insets.bottom,
           borderRadius: 16,
           overflow: "hidden"
@@ -54,6 +54,13 @@ const TabsLayout = () => {
         options={{
           title: 'Profil',
           tabBarIcon: ({color,size}) => <Ionicons name="person" size={size} color={color} />
+        }}
+      />
+      <Tabs.Screen 
+        name='localUx' 
+        options={{
+          title: 'Local',
+          tabBarIcon: ({color,size}) => <Ionicons name="desktop" size={size} color={color} />
         }}
       />
 
