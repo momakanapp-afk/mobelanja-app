@@ -1,4 +1,5 @@
 import { ClerkProvider, useAuth } from '@clerk/expo';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -71,12 +72,17 @@ function InitialLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
-      {/* Mendaftarkan rute sso-callback secara eksplisit */}
-      <Stack.Screen name="sso-callback" />
-    </Stack>
+    <ThemeProvider value={DarkTheme}>
+      <Stack screenOptions={{ 
+        headerShown: false ,
+        contentStyle: {backgroundColor: '#1B1818'}
+      }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        {/* Mendaftarkan rute sso-callback secara eksplisit */}
+        <Stack.Screen name="sso-callback" />
+      </Stack>
+    </ThemeProvider>
   );
 }
 

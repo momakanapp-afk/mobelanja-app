@@ -7,10 +7,10 @@ import { router } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const MENU_ITEMS = [
-  // { id: 1, icon: "person-outline", title: "Edit Profile", color: "#3B82F6", action: "/profile" },
-  { id: 2, icon: "list-outline", title: "Orders", color: "#10B981", action: "/orders" },
-  { id: 3, icon: "location-outline", title: "Addresses", color: "#F59E0B", action: "/addresses" },
-  // { id: 4, icon: "heart-outline", title: "Wishlist", color: "#EF4444", action: "/wishlist" },
+  { id: 1, icon: "person-outline", title: "Ubah Profil", color: "#3B82F6", action: "/profile-detail" },
+  { id: 2, icon: "newspaper-outline", title: "Daftar Pesanan", color: "#10B981", action: "/orders" },
+  { id: 3, icon: "location-outline", title: "Alamat Kirim", color: "#F59E0B", action: "/addresses" },
+  { id: 4, icon: "ticket-outline", title: "Kupon Diskon", color: "#b91010", action: "/voucher" },
 ] as const;
 
 const ProfileScreen = () => {
@@ -29,6 +29,9 @@ const ProfileScreen = () => {
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         {/* HEADER */}
+        <View className="px-6 pb-5 border-b border-surface flex-row items-center">
+          <Text className="text-primary text-xl font-bold">Profil Pengguna</Text>
+        </View>
         <View className="px-6 pb-8">
           <View className="bg-surface rounded-3xl p-6">
             <View className="flex-row items-center">
@@ -44,7 +47,7 @@ const ProfileScreen = () => {
               </View>
 
               <View className="flex-1 ml-4">
-                <Text className="text-text-primary text-2xl font-bold mb-1">
+                <Text className="text-text-primary text-xl font-bold mb-1">
                   {user?.firstName} {user?.lastName}
                 </Text>
                 <Text className="text-text-secondary text-sm">
@@ -56,50 +59,34 @@ const ProfileScreen = () => {
         </View>
 
         {/* MENU ITEMS */}
-        <View className="flex-row flex-wrap gap-2 mx-6 mb-3">
+        <View className="flex-row flex-wrap gap-2 mx-6 mb-3 justify-start">
+
           {MENU_ITEMS.map((item) => (
             <TouchableOpacity
               key={item.id}
-              className="bg-surface rounded-2xl p-6 items-center justify-center"
-              style={{ width: "48%" }}
-              activeOpacity={0.7}
+              className="bg-surface rounded-2xl p-5 items-center justify-center"
+              style={{ width: "47%",backgroundColor: item.color + "20" }}
+              activeOpacity={0.5}
               onPress={() => handleMenuPress(item.action)}
             >
               <View
                 className="rounded-full w-16 h-16 items-center justify-center mb-4"
-                style={{ backgroundColor: item.color + "20" }}
               >
-                <Ionicons name={item.icon} size={28} color={item.color} />
+                <Ionicons name={item.icon} size={42} color={item.color} />
               </View>
               <Text className="text-text-primary font-bold text-base">{item.title}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* NOTIFICATONS BTN */}
-        <View className="mb-3 mx-6 bg-surface rounded-2xl p-4">
-          <TouchableOpacity
-            className="flex-row items-center justify-between py-2"
-            activeOpacity={0.7}
-          >
-            <View className="flex-row items-center">
-              <Ionicons name="notifications-outline" size={22} color="#FFFFFF" />
-              <Text className="text-text-primary font-semibold ml-3">Notifications</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#666" />
-          </TouchableOpacity>
-        </View>
-
-        {/* PRIVACY AND SECURTIY LINK */}
-
         {/* SIGNOUT BTN */}
         <TouchableOpacity
-          className="mx-6 mb-3 bg-surface rounded-2xl py-5 flex-row items-center justify-center border-2 border-red-500/20"
+          className="mx-6 mb-3 bg-surface rounded-2xl py-4 flex-row items-center justify-center border-2 border-red-500/20"
           activeOpacity={0.8}
           onPress={() => signOut()}
         >
-          <Ionicons name="log-out-outline" size={22} color="#EF4444" />
-          <Text className="text-red-500 font-bold text-base ml-2">Sign Out</Text>
+          <Ionicons name="log-out-outline" size={28} color="#ff7f23" />
+          <Text className="text-primary text-xl font-bold ml-3">Sign Out</Text>
         </TouchableOpacity>
 
         <Text className="mx-6 mb-3 text-center text-text-secondary text-xs">Version 1.0.0</Text>

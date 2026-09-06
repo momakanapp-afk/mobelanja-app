@@ -86,18 +86,18 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
           </View>
 
           <View className="flex-row items-center justify-between">
-            <Text className="text-primary font-bold text-lg">{product.price}</Text>
+            <Text className="text-text-primary font-bold text-lg">{product.price}</Text>
 
             <TouchableOpacity
-              className="bg-primary rounded-2xl w-[60px] h-[40px] items-center justify-center"
+              className="bg-primary ml-2 rounded-full w-[60px] h-[38px] items-center justify-center"
               activeOpacity={0.7}
               onPress= {() => handleAddToCart(product._id, product.name)}
               disabled={isLoadingCart}
             >
             {isLoadingCart ? (
-                <ActivityIndicator size="small" color="#a5fed4" />
+                <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Ionicons name="cart" size={30} color="#a5fed4" />
+                <Ionicons name="cart" size={30} color="#ffe4d0" />
               )}
             </TouchableOpacity>
           </View>

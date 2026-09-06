@@ -39,7 +39,7 @@ import { ToastContainer } from 'rn-toastify';
     }
   });
 
-const ShopScreen = () => 
+const MarketScreen = () => 
 {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -133,7 +133,7 @@ const ShopScreen = () =>
       <View className="px-4 pt-2">
         <View className="flex-row items-center justify-between mb-3">
           <View>
-            <Text className="text-text-primary text-2xl font-bold tracking-tight">MoBelanja</Text>
+            <Text className="text-primary text-2xl font-bold tracking-tight">MoBelanja</Text>
           </View>
           <TouchableOpacity 
             className="bg-surface p-2 rounded-full" activeOpacity={0.7}
@@ -146,7 +146,7 @@ const ShopScreen = () =>
 
       {/* SEARCH BAR */}
       <View className="bg-surface mb-4 flex-row items-center mx-2 px-4 rounded-2xl">
-        <Ionicons color={"#fbd502"} size={22} name="search" />
+        <Ionicons color={"#ff7f23"} size={22} name="search" />
         <TextInput
           className="flex-1 ml-3 text-xl text-text-primary"
           placeholder="Ketik untuk mencari"
@@ -156,7 +156,7 @@ const ShopScreen = () =>
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={clearText} activeOpacity={0.7}>
-            <Ionicons name="close-circle" size={28} color="#fbd502" />
+            <Ionicons name="close-circle" size={28} color="#ff7f23" />
           </TouchableOpacity>
         )}
       </View>
@@ -176,6 +176,6 @@ const ShopScreen = () =>
     </SafeScreen>
   );
 
-} // End ShopScreen
+} // End MarketScreen
 
-export default ShopScreen
+export default MarketScreen
