@@ -1,17 +1,22 @@
-import {
-  View,
-  Text,
-  Modal,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Switch,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import SafeScreen from "./SafeScreen";
 import { Ionicons } from "@expo/vector-icons";
+import * as Location from 'expo-location';
+import { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import useToast, { ToastContainer } from "rn-toastify";
+import SafeScreen from "./SafeScreen";
 
 interface AddressFormData {
   label: string;
@@ -21,6 +26,7 @@ interface AddressFormData {
   state: string;
   zipCode: string;
   phoneNumber: string;
+  geolokasi: string;
   isDefault: boolean;
 }
 
@@ -35,16 +41,77 @@ interface AddressFormModalProps {
   onFormChange: (form: AddressFormData) => void;
 }
 
+
 const AddressFormModal = ({
   addressForm,
   isAddingAddress,
   isEditing,
-  isUpdatingAddress,
+  isUpdatingAddress, 
   onClose,
   onFormChange,
   onSave,
   visible,
 }: AddressFormModalProps) => {
+
+
+  // Segala fungsi dan definisi masukkan dalam body yg akan diexport !
+  // atau compile akan error 
+  const akurasiJarak = useRef('');
+  const [loadLoc, setLoadLoc] = useState(false);
+  // FUNGSI AMBIL GEOLOKASI
+  const getMyGeolocation = async () => {
+    setLoadLoc(true);
+    try {
+      // 1. Minta izin akses lokasi
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Izin Ditolak', 'Izin untuk mengakses lokasi ditolak.');
+        setLoadLoc(false);
+        return;
+      }
+      // 2. Ambil koordinat posisi saat ini
+      // Accuracy.Highest / Accuracy.Balanced bisa disesuaikan kebutuhan
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Highest,
+      });
+
+      onFormChange({ ...addressForm, 
+        geolokasi: location.coords.latitude.toFixed(8)+', '+location.coords.longitude.toFixed(8) });
+      akurasiJarak.current = String(location.coords.accuracy?.toFixed(2));
+    } catch (error:any) {
+      Alert.alert('Error', 'Gagal mengambil lokasi:');
+    } finally {
+      setLoadLoc(false);
+    }
+  };
+
+  const toast = useToast();
+  const idToast = useRef('');
+  
+  // Loading lokasi
+  useEffect(()=>{
+    if (loadLoc) {
+      idToast.current = toast.warning('Sedang mengambil geolokasi ...', {
+        duration: Infinity, 
+      });
+    }
+    else {
+      if (idToast.current==='') return
+      toast.dismiss(idToast.current)
+      idToast.current = toast.success('Akurasi '+akurasiJarak.current+' m ulangi jika kurang akurat', {
+        duration: 4000, 
+      });
+    }
+
+    // Cleanup jika komponen di-unmount saat masih loading
+    return () => {
+      if (idToast.current) {
+        toast.dismiss(idToast.current);
+      }
+    };
+  },[loadLoc])
+  
+  
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView
@@ -54,11 +121,11 @@ const AddressFormModal = ({
         <SafeScreen>
           {/* HEADER */}
           <View className="px-6 py-5 border-b border-surface flex-row items-center justify-between">
-            <Text className="text-text-primary text-2xl font-bold">
-              {isEditing ? "Edit Address" : "Add New Address"}
+            <Text className="text-primary text-xl font-bold">
+              {isEditing ? "Ubah Alamat" : "Buat Alamat Baru"}
             </Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={28} color="#FFFFFF" />
+              <Ionicons name="close" size={28} color="#ff7f23" />
             </TouchableOpacity>
           </View>
 
@@ -70,10 +137,10 @@ const AddressFormModal = ({
             <View className="p-6">
               {/* LABEL INPUT */}
               <View className="mb-5">
-                <Text className="text-text-primary font-semibold mb-2">Label</Text>
+                <Text className="text-text-primary font-semibold mb-2">Label Alamat</Text>
                 <TextInput
-                  className="bg-surface text-text-primary p-4 rounded-2xl text-base"
-                  placeholder="e.g., Home, Work, Office"
+                  className="bg-surface text-text-primary p-4 rounded-2xl text-lg"
+                  placeholder="Rumah, Kantor, Kampus ..."
                   placeholderTextColor="#666"
                   value={addressForm.label}
                   onChangeText={(text) => onFormChange({ ...addressForm, label: text })}
@@ -82,10 +149,10 @@ const AddressFormModal = ({
 
               {/* NAME INPUT */}
               <View className="mb-5">
-                <Text className="text-text-primary font-semibold mb-2">Full Name</Text>
+                <Text className="text-text-primary font-semibold mb-2">Nama Lengkap</Text>
                 <TextInput
-                  className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-base"
-                  placeholder="Enter your full name"
+                  className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-lg"
+                  placeholder="Nama lengkap penerima .."
                   placeholderTextColor="#666"
                   value={addressForm.fullName}
                   onChangeText={(text) => onFormChange({ ...addressForm, fullName: text })}
@@ -94,10 +161,10 @@ const AddressFormModal = ({
 
               {/* Address Input */}
               <View className="mb-5">
-                <Text className="text-text-primary font-semibold mb-2">Street Address</Text>
+                <Text className="text-text-primary font-semibold mb-2">Detail Alamat</Text>
                 <TextInput
                   className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-base"
-                  placeholder="Street address, apt/suite number"
+                  placeholder="Nama jalan, Perum, RT/RW ..."
                   placeholderTextColor="#666"
                   value={addressForm.streetAddress}
                   onChangeText={(text) => onFormChange({ ...addressForm, streetAddress: text })}
@@ -107,34 +174,22 @@ const AddressFormModal = ({
 
               {/* City Input */}
               <View className="mb-5">
-                <Text className="text-text-primary font-semibold mb-2">City</Text>
+                <Text className="text-text-primary font-semibold mb-2">Kota Kabupaten</Text>
                 <TextInput
-                  className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-base"
-                  placeholder="e.g., New York"
+                  className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-lg"
+                  placeholder="Kota / Kabupatan"
                   placeholderTextColor="#666"
                   value={addressForm.city}
                   onChangeText={(text) => onFormChange({ ...addressForm, city: text })}
                 />
               </View>
 
-              {/* State Input */}
-              <View className="mb-5">
-                <Text className="text-text-primary font-semibold mb-2">State</Text>
-                <TextInput
-                  className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-base"
-                  placeholder="e.g., NY"
-                  placeholderTextColor="#666"
-                  value={addressForm.state}
-                  onChangeText={(text) => onFormChange({ ...addressForm, state: text })}
-                />
-              </View>
-
               {/* ZIP Code Input */}
               <View className="mb-5">
-                <Text className="text-text-primary font-semibold mb-2">ZIP Code</Text>
+                <Text className="text-text-primary font-semibold mb-2">Kode Pos</Text>
                 <TextInput
-                  className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-base"
-                  placeholder="e.g., 10001"
+                  className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-xl"
+                  placeholder="Kode Pos"
                   placeholderTextColor="#666"
                   value={addressForm.zipCode}
                   onChangeText={(text) => onFormChange({ ...addressForm, zipCode: text })}
@@ -144,10 +199,10 @@ const AddressFormModal = ({
 
               {/* Phone Input */}
               <View className="mb-5">
-                <Text className="text-text-primary font-semibold mb-2">Phone Number</Text>
+                <Text className="text-text-primary font-semibold mb-2">Nomor Kontak</Text>
                 <TextInput
-                  className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-base"
-                  placeholder="+1 (555) 123-4567"
+                  className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-xl"
+                  placeholder="Kontak telpon / whatsapp"
                   placeholderTextColor="#666"
                   value={addressForm.phoneNumber}
                   onChangeText={(text) => onFormChange({ ...addressForm, phoneNumber: text })}
@@ -155,13 +210,34 @@ const AddressFormModal = ({
                 />
               </View>
 
+              {/* Geolokasi */}
+              <View className="mb-5">
+                <Text className="text-text-primary font-semibold mb-2">Geolokasi Alamat (copy paste)</Text>
+                <TextInput
+                  className="bg-surface text-text-primary px-4 py-4 rounded-2xl text-base"
+                  placeholder="contoh: -7.6015835537, 110.9682985)"
+                  placeholderTextColor="#666"
+                  value={addressForm.geolokasi}
+                  onChangeText={(text) => onFormChange({ ...addressForm, geolokasi: text })}
+                />
+              </View>
+              <Pressable
+                onPress={getMyGeolocation}
+                className="border-2 border-sky-600 bg-transparent active:bg-surface px-5 py-1 rounded-xl items-center justify-center flex-row"
+              >
+                <Ionicons name="locate-sharp" size={23} color="#FFFFFF" />
+                <Text className="text-white font-semibold text-base ml-3">
+                  Gunakan lokasi saya saat ini
+                </Text>
+              </Pressable>
+
               {/* Default Address Toggle */}
-              <View className="bg-surface rounded-2xl p-4 flex-row items-center justify-between mb-6">
-                <Text className="text-text-primary font-semibold">Set as default address</Text>
+              <View className="bg-surface rounded-2xl pl-6 px-4 flex-row items-center justify-between my-5">
+                <Text className="text-text-primary font-semibold">Setel sebagai alamat default</Text>
                 <Switch
                   value={addressForm.isDefault}
                   onValueChange={(value) => onFormChange({ ...addressForm, isDefault: value })}
-                  thumbColor="white"
+                  thumbColor={addressForm.isDefault ? "#ff7f23" : "white"}
                 />
               </View>
 
@@ -176,12 +252,13 @@ const AddressFormModal = ({
                   <ActivityIndicator size="small" color="#121212" />
                 ) : (
                   <Text className="text-background font-bold text-lg">
-                    {isEditing ? "Save Changes" : "Add Address"}
+                    {isEditing ? "Simpan Perubahan" : "Tambah Alamat"}
                   </Text>
                 )}
               </TouchableOpacity>
             </View>
           </ScrollView>
+          <ToastContainer maxVisible={3} />
         </SafeScreen>
       </KeyboardAvoidingView>
     </Modal>

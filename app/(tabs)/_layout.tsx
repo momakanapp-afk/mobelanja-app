@@ -17,9 +17,9 @@ const TabsLayout = () => {
         tabBarInactiveTintColor: "#B3B3B3",
         tabBarStyle: {
           position: 'absolute',
-        backgroundColor:'#121212',
+          backgroundColor:'#121212',
           borderTopWidth: 0,
-          height:  insets.bottom + 15,
+          height:  60,
           paddingTop: 4,
           paddingBottom: 2,
           marginHorizontal: 50,
@@ -53,7 +53,7 @@ const TabsLayout = () => {
         name='profile' 
         options={{
           title: 'Profil',
-          tabBarIcon: ({color,size}) => <Ionicons name="person-outline" size={size} color={color} />
+          tabBarIcon: ({color,size}) => <Ionicons name="person-sharp" size={size} color={color} />
         }}
       />
       <Tabs.Screen 

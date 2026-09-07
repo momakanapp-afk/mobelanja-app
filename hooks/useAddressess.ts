@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "@/lib/api";
 import { Address } from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAddresses = () => {
   const api = useApi();
@@ -8,19 +8,19 @@ export const useAddresses = () => {
 
   const {
     data: addresses,
-    isLoading,
-    isError,
-  } = useQuery({
+    isLoading,isError,} = useQuery({
     queryKey: ["addresses"],
     queryFn: async () => {
-      const { data } = await api.get<{ addresses: Address[] }>("/users/addresses");
+      const { data } = await api.get<{ addresses: Address[] }>(
+        "/users/addresses.php");
       return data.addresses;
     },
   });
 
   const addAddressMutation = useMutation({
     mutationFn: async (addressData: Omit<Address, "_id">) => {
-      const { data } = await api.post<{ addresses: Address[] }>("/users/addresses", addressData);
+      const { data } = await api.post<{ addresses: Address[] }>(
+        "/users/addresses.php", addressData);
       return data.addresses;
     },
     onSuccess: () => {
@@ -29,13 +29,8 @@ export const useAddresses = () => {
   });
 
   const updateAddressMutation = useMutation({
-    mutationFn: async ({
-      addressId,
-      addressData,
-    }: {
-      addressId: string;
-      addressData: Partial<Address>;
-    }) => {
+    mutationFn: async ({addressId,addressData}:
+      {addressId: string;addressData: Partial<Address>;}) => {
       const { data } = await api.put<{ addresses: Address[] }>(
         `/users/addresses/${addressId}`,
         addressData
@@ -49,7 +44,8 @@ export const useAddresses = () => {
 
   const deleteAddressMutation = useMutation({
     mutationFn: async (addressId: string) => {
-      const { data } = await api.delete<{ addresses: Address[] }>(`/users/addresses/${addressId}`);
+      const { data } = await api.delete<{ addresses: Address[] }>(
+        `/users/addresses/${addressId}`);
       return data.addresses;
     },
     onSuccess: () => {
@@ -58,7 +54,7 @@ export const useAddresses = () => {
   });
 
   return {
-    addresses: addresses || [],
+    addresses: addresses ?? [],
     isLoading,
     isError,
     addAddress: addAddressMutation.mutate,

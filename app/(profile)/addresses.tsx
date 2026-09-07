@@ -7,6 +7,7 @@ import { Address } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import useToast, { ToastContainer } from "rn-toastify";
 
 function AddressesScreen() {
   const {
@@ -30,9 +31,12 @@ function AddressesScreen() {
     state: "",
     zipCode: "",
     phoneNumber: "",
+    geolokasi: "",
     isDefault: false,
   });
 
+  const toast = useToast();
+  
   const handleAddAddress = () => {
     setShowAddressForm(true);
     setEditingAddressId(null);
@@ -44,6 +48,7 @@ function AddressesScreen() {
       state: "",
       zipCode: "",
       phoneNumber: "",
+      geolokasi: "",
       isDefault: false,
     });
   };
@@ -59,14 +64,15 @@ function AddressesScreen() {
       state: address.state,
       zipCode: address.zipCode,
       phoneNumber: address.phoneNumber,
+      geolokasi: address.geolokasi,
       isDefault: address.isDefault,
     });
   };
 
   const handleDeleteAddress = (addressId: string, label: string) => {
-    Alert.alert("Delete Address", `Are you sure you want to delete ${label}`, [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: () => deleteAddress(addressId) },
+    Alert.alert("Hapus", `Yakin menghapus alamat ${label}`, [
+      { text: "Batal", style: "cancel" },
+      { text: "Hapus", style: "destructive", onPress: () => deleteAddress(addressId) },
     ]);
   };
 
@@ -76,11 +82,10 @@ function AddressesScreen() {
       !addressForm.fullName ||
       !addressForm.streetAddress ||
       !addressForm.city ||
-      !addressForm.state ||
       !addressForm.zipCode ||
       !addressForm.phoneNumber
     ) {
-      Alert.alert("Error", "Please fill in all fields");
+      Alert.alert("Error", "Seluruh teks kecuali geolokasi wajib diisi");
       return;
     }
 
@@ -95,10 +100,10 @@ function AddressesScreen() {
           onSuccess: () => {
             setShowAddressForm(false);
             setEditingAddressId(null);
-            Alert.alert("Success", "Address updated successfully");
+            Alert.alert("Success", "Alamat telah diperbaharui");
           },
           onError: (error: any) => {
-            Alert.alert("Error", error?.response?.data?.error || "Failed to update address");
+            Alert.alert("Error", error?.response?.data?.error || "Gagal memperbaharui alamat");
           },
         }
       );
@@ -107,10 +112,10 @@ function AddressesScreen() {
       addAddress(addressForm, {
         onSuccess: () => {
           setShowAddressForm(false);
-          Alert.alert("Success", "Address added successfully");
+          Alert.alert("Success", "Alamat berhasil ditambahkan");
         },
         onError: (error: any) => {
-          Alert.alert("Error", error?.response?.data?.error || "Failed to add address");
+          Alert.alert("Error", error?.response?.data?.error || "Gagal menambahkan alamat");
         },
       });
     }
@@ -128,19 +133,21 @@ function AddressesScreen() {
     <SafeScreen>
       <AddressesHeader />
 
-      {addresses.length === 0 ? (
+      {addresses.length===0 ? (
         <View className="flex-1 items-center justify-center px-6">
           <Ionicons name="location-outline" size={80} color="#666" />
-          <Text className="text-text-primary font-semibold text-xl mt-4">No addresses yet</Text>
+          <Text className="text-text-primary font-semibold text-xl mt-4">
+            Belum ada alamat
+          </Text>
           <Text className="text-text-secondary text-center mt-2">
-            Add your first delivery address
+            Tambahkan alamat pengiriman barang
           </Text>
           <TouchableOpacity
             className="bg-primary rounded-2xl px-8 py-4 mt-6"
             activeOpacity={0.8}
             onPress={handleAddAddress}
           >
-            <Text className="text-background font-bold text-base">Add Address</Text>
+            <Text className="text-background font-bold text-base">Tambah Alamat</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -168,7 +175,9 @@ function AddressesScreen() {
             >
               <View className="flex-row items-center">
                 <Ionicons name="add-circle-outline" size={24} color="#121212" />
-                <Text className="text-background font-bold text-base ml-2">Add New Address</Text>
+                <Text className="text-background font-bold text-base ml-2">
+                  Tambah Alamat Baru
+                </Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -185,8 +194,10 @@ function AddressesScreen() {
         onSave={handleSaveAddress}
         onFormChange={setAddressForm}
       />
+    
+    <ToastContainer maxVisible={3} />
     </SafeScreen>
-  );
+  ); 
 }
 export default AddressesScreen;
 
@@ -197,10 +208,10 @@ function ErrorUI() {
       <View className="flex-1 items-center justify-center px-6">
         <Ionicons name="alert-circle-outline" size={64} color="#FF6B6B" />
         <Text className="text-text-primary font-semibold text-xl mt-4">
-          Failed to load addresses
+          Gagal memuat alamat
         </Text>
         <Text className="text-text-secondary text-center mt-2">
-          Please check your connection and try again
+          Cek koneksi internet
         </Text>
       </View>
     </SafeScreen>
@@ -213,7 +224,7 @@ function LoadingUI() {
       <AddressesHeader />
       <View className="flex-1 items-center justify-center px-6">
         <ActivityIndicator size="large" color="#E3D3CC" />
-        <Text className="text-text-primary mt-4">Loading addresses...</Text>
+        <Text className="text-text-primary mt-4">Memuat daftar alamat</Text>
       </View>
     </SafeScreen>
   );
