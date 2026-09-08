@@ -1,9 +1,11 @@
 import SafeScreen from "@/components/SafeScreen";
+import useProfileImage from "@/hooks/useProfileImage";
 import { useAuth, useUser } from "@clerk/expo";
 
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const MENU_ITEMS = [
@@ -13,13 +15,24 @@ const MENU_ITEMS = [
   { id: 4, icon: "ticket-outline", title: "Kupon Diskon", color: "#b91010", action: "/voucher" },
 ] as const;
 
-const ProfileScreen = () => {
+const ProfileScreen = () => 
+{
   const { signOut } = useAuth();
   const { user } = useUser();
 
   const handleMenuPress = (action: (typeof MENU_ITEMS)[number]["action"]) => {
     router.push(action);
   };
+
+  const [showPopup, setShowPopup] = useState(false);
+  const {image,takePhoto,pickImageFromGallery} = useProfileImage();
+  const [gambar,setGambar] = useState<string|null>();
+
+  useEffect(()=>{
+    if (image===null) setGambar(user?.imageUrl)
+    else setGambar(image)
+    setShowPopup(false)
+  },[image])
 
   return (
     <SafeScreen>
@@ -33,17 +46,44 @@ const ProfileScreen = () => {
           <Text className="text-primary text-xl font-bold">Profil Pengguna</Text>
         </View>
         <View className="px-6 pb-8">
-          <View className="bg-surface rounded-3xl p-6">
+          <View className="rounded-3xl p-6">
             <View className="flex-row items-center">
               <View className="relative">
                 <Image
-                  source={user?.imageUrl}
-                  style={{ width: 80, height: 80, borderRadius: 40 }}
+                  source={gambar}
+                  style={{ width: 90, height: 90, borderRadius: 50 }}
                   transition={200}
                 />
-                <View className="absolute -bottom-1 -right-1 bg-primary rounded-full size-7 items-center justify-center border-2 border-surface">
-                  <Ionicons name="checkmark" size={16} color="#121212" />
-                </View>
+                <TouchableOpacity 
+                  className="absolute w-[35px] h-[35px] -bottom-1 -right-1 bg-primary rounded-full size-7 items-center justify-center border border-surface"
+                  activeOpacity={0.5}
+                  onPress={()=>setShowPopup(!showPopup)}
+                >
+                  <Ionicons name="camera" size={24} color="#121212" />
+                </TouchableOpacity>
+
+                {/* POPUP 2 TOMBOL BULAT HORIZONTAL */}
+                {showPopup && (
+                  <View className="absolute -bottom-[32px] -right-[80px] flex-row bg-background-lighter p-2 rounded-full shadow-lg border border-slate-700 z-20 space-x-2">
+                    {/* Tombol Bulat 1: Kamera */}
+                    <TouchableOpacity
+                      activeOpacity={0.7}
+                      className="w-10 h-10 bg-blue-700 rounded-full items-center justify-center"
+                      onPress={takePhoto}
+                    >
+                      <Ionicons name="camera-outline" size={26} color="#FFF" />
+                    </TouchableOpacity>
+                    {/* Tombol Bulat 2: Galeri */}
+                    <TouchableOpacity
+                      activeOpacity={0.7}
+                      className="w-10 h-10 bg-red-800 rounded-full items-center justify-center"
+                      onPress={pickImageFromGallery}
+                    >
+                      <Ionicons name="images-outline" size={22} color="#FFF" />
+                    </TouchableOpacity>
+                  </View>
+                )}
+
               </View>
 
               <View className="flex-1 ml-4">

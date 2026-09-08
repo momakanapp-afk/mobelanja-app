@@ -10,18 +10,19 @@ interface AddressCardProps {
   isDeletingAddress: boolean;
 }
 
-export default function AddressCard({
-  address,
-  onEdit,
-  onDelete,
-  isUpdatingAddress,
-  isDeletingAddress,
-}: AddressCardProps) {
+export default function AddressCard(
+  {
+    address,
+    onEdit,
+    onDelete,
+    isUpdatingAddress,
+    isDeletingAddress,
+  }: AddressCardProps) {
   return (
     <View className="bg-surface rounded-3xl p-5 mb-3">
       <View className="flex-row items-center justify-between mb-4">
         <View className="flex-row items-center">
-          <View className="bg-primary/20 rounded-full w-12 h-12 items-center justify-center mr-3">
+          <View className="bg-accent/20 rounded-full w-12 h-12 items-center justify-center mr-3">
             <Ionicons name="location" size={24} color="#1DB954" />
           </View>
           <Text className="text-text-primary font-bold text-lg">{address.label}</Text>
@@ -42,12 +43,12 @@ export default function AddressCard({
       </View>
       <View className="flex-row mt-4 gap-2">
         <TouchableOpacity
-          className="flex-1 bg-primary/20 py-3 rounded-xl items-center"
+          className="flex-1 bg-accent-blue/20 py-3 rounded-xl items-center"
           activeOpacity={0.7}
           onPress={() => onEdit(address)}
           disabled={isUpdatingAddress}
         >
-          <Text className="text-primary font-bold">Edit</Text>
+          <Text className="text-text-primary font-bold">Ubah</Text>
         </TouchableOpacity>
         <TouchableOpacity
           className="flex-1 bg-red-500/20 py-3 rounded-xl items-center"
@@ -55,7 +56,7 @@ export default function AddressCard({
           onPress={() => onDelete(address._id, address.label)}
           disabled={isDeletingAddress}
         > 
-          <Text className="text-red-500 font-bold">Delete</Text>
+          <Text className="text-red-500 font-bold">Hapus</Text>
         </TouchableOpacity>
       </View>
     </View>

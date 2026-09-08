@@ -11,15 +11,13 @@ import useToast, { ToastContainer } from "rn-toastify";
 
 function AddressesScreen() {
   const {
-    addAddress,
     addresses,
     deleteAddress,
-    isAddingAddress,
     isDeletingAddress,
+    syncAddress,
+    isSyncAddress,
     isError,
     isLoading,
-    isUpdatingAddress,
-    updateAddress,
   } = useAddresses();
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
@@ -40,6 +38,7 @@ function AddressesScreen() {
   const handleAddAddress = () => {
     setShowAddressForm(true);
     setEditingAddressId(null);
+    // Kosongkan form tambah alamat saat dibuka
     setAddressForm({
       label: "",
       fullName: "",
@@ -76,7 +75,7 @@ function AddressesScreen() {
     ]);
   };
 
-  const handleSaveAddress = () => {
+  const handleSaveAddress = () => { 
     if (
       !addressForm.label ||
       !addressForm.fullName ||
@@ -88,35 +87,34 @@ function AddressesScreen() {
       Alert.alert("Error", "Seluruh teks kecuali geolokasi wajib diisi");
       return;
     }
-
     if (editingAddressId) {
       // update an existing address
-      updateAddress(
+      syncAddress(
         {
-          addressId: editingAddressId,
+          id: editingAddressId,
           addressData: addressForm,
         },
         {
           onSuccess: () => {
             setShowAddressForm(false);
             setEditingAddressId(null);
-            Alert.alert("Success", "Alamat telah diperbaharui");
-          },
-          onError: (error: any) => {
-            Alert.alert("Error", error?.response?.data?.error || "Gagal memperbaharui alamat");
-          },
+              toast.success('Alamat berhasil diperbaharui', {
+              title: 'Alamat diperbaharui',
+              duration: 3500,
+            });
+          }
         }
       );
     } else {
       // create new address
-      addAddress(addressForm, {
+      syncAddress({id:'',addressData:addressForm}, {
         onSuccess: () => {
           setShowAddressForm(false);
-          Alert.alert("Success", "Alamat berhasil ditambahkan");
-        },
-        onError: (error: any) => {
-          Alert.alert("Error", error?.response?.data?.error || "Gagal menambahkan alamat");
-        },
+          toast.success('Alamat baru telah ditambahkan', {
+            title: 'Alamat ditambahkan',
+            duration: 3500,
+          });
+        }
       });
     }
   };
@@ -163,7 +161,7 @@ function AddressesScreen() {
                 address={address}
                 onEdit={handleEditAddress}
                 onDelete={handleDeleteAddress}
-                isUpdatingAddress={isUpdatingAddress}
+                isUpdatingAddress={isSyncAddress}
                 isDeletingAddress={isDeletingAddress}
               />
             ))}
@@ -188,14 +186,13 @@ function AddressesScreen() {
         visible={showAddressForm}
         isEditing={!!editingAddressId}
         addressForm={addressForm}
-        isAddingAddress={isAddingAddress}
-        isUpdatingAddress={isUpdatingAddress}
+        isAddingAddress={isSyncAddress}
+        isUpdatingAddress={isSyncAddress}
         onClose={handleCloseAddressForm}
         onSave={handleSaveAddress}
         onFormChange={setAddressForm}
       />
-    
-    <ToastContainer maxVisible={3} />
+    <ToastContainer  maxVisible={3} />
     </SafeScreen>
   ); 
 }

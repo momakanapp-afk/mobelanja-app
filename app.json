@@ -39,6 +39,13 @@
           }
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Aplikasi butuh akses galeri untuk memilih foto",
+          "cameraPermission": "Aplikasi butuh akses kamera untuk mengambil foto"
+        }
+      ],
       "@clerk/expo",
       "expo-secure-store",
       "expo-web-browser"
