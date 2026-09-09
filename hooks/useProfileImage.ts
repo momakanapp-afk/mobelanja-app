@@ -2,10 +2,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { useState } from "react";
 import { Alert } from "react-native";
 
+
 function useProfileImage() {
 
   const [showPopup, setShowPopup] = useState(false);
-  const [image, setImage] = useState<string|null>(null);
+  const [imagePicked, setImagePicked] = useState<string|null>(null);
 
   const takePhoto = async () => {
       setShowPopup(false); // Sembunyikan popup
@@ -16,13 +17,13 @@ function useProfileImage() {
       }
 
       let result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
+        allowsEditing: false,
         aspect: [1, 1],
         quality: 0.8,
       });
 
       if (!result.canceled) {
-        setImage(result.assets[0].uri);
+        setImagePicked(result.assets[0].uri);
       }
     };
 
@@ -37,19 +38,24 @@ function useProfileImage() {
 
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
-      allowsEditing: true,
+      allowsEditing: false,
       aspect: [1, 1],
       quality: 0.8,
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setImagePicked(result.assets[0].uri);
     }
   };
+  const resetImagePicked = ()=>{
+    setImagePicked(null);
+  }
+
   return {
-    image,
+    imagePicked,
     pickImageFromGallery,
-    takePhoto
+    takePhoto,
+    resetImagePicked
   }
 }
 

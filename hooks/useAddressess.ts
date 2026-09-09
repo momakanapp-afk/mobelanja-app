@@ -9,9 +9,7 @@ export const useAddresses = () => {
   const toast = useToast();
 
   // GET FULL DATA ALAMAT => UseQuery
-  const {
-    data: addresses,
-    isLoading,isError,} = useQuery({
+  const {data: addresses,isLoading,isError} = useQuery({
     queryKey: ["addresses"],
     queryFn: async () => {
       const { data } = await api.get<{ addresses: Address[] }>(

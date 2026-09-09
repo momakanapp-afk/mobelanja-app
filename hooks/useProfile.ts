@@ -1,0 +1,49 @@
+import { useApi } from "@/lib/api";
+import { User } from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import useToast from "rn-toastify";
+
+
+export const useProfile = () => 
+{
+  const queryClient = useQueryClient();
+  const api = useApi();
+  const toast = useToast();
+
+  // GET USER DATA 
+  const {data: usertbl,isLoading,isError} = useQuery({
+    queryKey: ["usertbl"],
+    queryFn: async () => {
+      const { data } = await api.get<{ userdata:User }>(
+        "/users/profile.php");
+      return data.userdata;
+    },
+  });
+
+  const saveImageUrl = useMutation({
+    mutationFn: async (imgUrl:string) => {
+      const { data } = await api.post<{ isSuccess:boolean,imgUrl:string }>(
+        "/users/profile.php", 
+        { // Payload
+          act: 'saveImageUrl',
+          urlimg: imgUrl
+        });
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data.isSuccess) {
+        toast.success('Gambar profil telah disimpan', {
+          title: 'Profil disimpan',
+          duration: 3500,
+        });
+        queryClient.invalidateQueries({ queryKey: ["usertbl"] });
+      }
+    }
+  })
+
+  return {
+    usertbl,
+    saveImage: saveImageUrl.mutate,
+    tungguData: isLoading
+  }
+}

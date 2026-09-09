@@ -1,12 +1,16 @@
 import SafeScreen from "@/components/SafeScreen";
+import { useCloudinaryUpload } from "@/hooks/useCloudinary";
+import { useImageProcess } from '@/hooks/useImageProcess';
+import { useProfile } from "@/hooks/useProfile";
 import useProfileImage from "@/hooks/useProfileImage";
 import { useAuth, useUser } from "@clerk/expo";
-
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import Gallery from 'react-native-awesome-gallery';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const MENU_ITEMS = [
   { id: 1, icon: "person-outline", title: "Ubah Profil", color: "#3B82F6", action: "/profile-detail" },
@@ -25,17 +29,96 @@ const ProfileScreen = () =>
   };
 
   const [showPopup, setShowPopup] = useState(false);
-  const {image,takePhoto,pickImageFromGallery} = useProfileImage();
+  const {imagePicked,takePhoto,pickImageFromGallery,resetImagePicked} = useProfileImage();
   const [gambar,setGambar] = useState<string|null>();
 
+  // Upload Hooks 
+  const { uploadToCloudinary, progress, statusText, isUploading, urlUpl} =
+    useCloudinaryUpload();
+  const {usertbl, saveImage} = useProfile();
+  const {processImage} = useImageProcess();
+
+  // IMAGE VIEWER
+  const [imvVisible, setImvVisible] = useState(false);
+  const [initialIndex, setInitialIndex] = useState(0);
+
+  interface ImageItem {
+    id: string;
+    uri: string;
+  }
+  const [IMAGES, setIMAGES] = useState<ImageItem[]>([]);
+
+  const addImageWithCheck = (newUri: string): void => {
+    // 1. Cek apakah URI sudah ada di dalam array state
+    const isDuplicate = IMAGES.some((item) => item.uri === newUri);
+    if (isDuplicate) {
+      return;
+    }
+    const newImage: ImageItem = {
+      id: `img-${IMAGES.length+1}`,
+      uri: newUri,
+    };
+    setInitialIndex((prev)=>prev+1);
+    setIMAGES((prev) => [...prev, newImage]);
+  };
+  const imageUrls: string[] = IMAGES.map((item) => item.uri);
+
+  // Init data 
   useEffect(()=>{
-    if (image===null) setGambar(user?.imageUrl)
-    else setGambar(image)
+    if (usertbl===undefined) return
+    if (usertbl.imageUrl!==undefined) {
+      setGambar(usertbl.imageUrl);
+      addImageWithCheck(usertbl.imageUrl)
+    } else {
+      setGambar(user?.imageUrl)
+    }
+  },[usertbl]) 
+
+  useEffect(()=>{
     setShowPopup(false)
-  },[image])
+    if (imagePicked!==null) {
+      (async () => {
+        // Resize Max 2000px
+        const processed = await processImage(imagePicked, {
+          maxDimension: 1500,
+          compress: 0.8,
+        }); 
+        
+        const respon = await uploadToCloudinary(processed.uri);
+        if (respon!==null) {
+          saveImage(respon.secure_url);
+        }
+        resetImagePicked();
+      })()
+    }
+  },[imagePicked])
 
   return (
     <SafeScreen>
+      {/* MODAL IMAGE VIEWER */}
+      <Modal 
+        visible={imvVisible} 
+        transparent={true} 
+        onRequestClose={() => setImvVisible(false)}
+      >
+        <GestureHandlerRootView style={{flex:1}}>
+        <Gallery
+          data={imageUrls}
+          initialIndex={initialIndex}
+          // onSwipeToClose={() => setImvVisible(false)}
+        />
+        </GestureHandlerRootView>
+      </Modal>
+
+
+      {/* PROGRESS BAR UPLOAD */}
+      {isUploading && (<View className="relative">
+        <View className="absolute w-40 h-8 rounded-full item left-4 top-9 flex-row bg-text-primary py-1 px-1 z-20">
+          <View className="h-auto bg-primary rounded-full" style={{width:`${progress}%`}}>
+            <Text className="text-base text-center overflow-visible font-bold">{statusText}</Text>
+          </View>
+        </View>
+      </View>)}
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -49,11 +132,16 @@ const ProfileScreen = () =>
           <View className="rounded-3xl p-6">
             <View className="flex-row items-center">
               <View className="relative">
-                <Image
-                  source={gambar}
-                  style={{ width: 90, height: 90, borderRadius: 50 }}
-                  transition={200}
-                />
+                <TouchableOpacity
+                  activeOpacity={0.5}
+                  onPress={()=>{setImvVisible(true)}}
+                >
+                  <Image
+                    source={gambar}
+                    style={{ width: 90, height: 90, borderRadius: 50 }}
+                    transition={200}
+                  />
+                </TouchableOpacity>
                 <TouchableOpacity 
                   className="absolute w-[35px] h-[35px] -bottom-1 -right-1 bg-primary rounded-full size-7 items-center justify-center border border-surface"
                   activeOpacity={0.5}
