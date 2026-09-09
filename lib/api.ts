@@ -20,7 +20,7 @@ export const useApi = () => {
   useEffect(() => {
     // on every single req, we would like have an auth token so that our backend knows that we're authenticated
     const interceptor = api.interceptors.request.use(async (config) => {
-      const token = await getToken();
+      const token = await getToken({ template: 'Template-1' });
       if (token) {
         // we're including the auth token under the auth headers
         config.headers.Authorization = `Bearer ${token}`;

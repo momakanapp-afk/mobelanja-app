@@ -3,7 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Wajib dipanggil untuk mengizinkan WebBrowser menangani callback auth secara otomatis
 WebBrowser.maybeCompleteAuthSession();
@@ -70,13 +71,18 @@ function InitialLayout() {
     return null;
   }
 
-  return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
-      {/* Mendaftarkan rute sso-callback secara eksplisit */}
-      <Stack.Screen name="sso-callback" />
-    </Stack>
+  return ( 
+    <GestureHandlerRootView style={{flex:1}}>
+      <Stack screenOptions={{ 
+        headerShown: false ,
+        contentStyle: {backgroundColor: '#1B1818'}
+      }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        {/* Mendaftarkan rute sso-callback secara eksplisit */}
+        <Stack.Screen name="sso-callback" />
+      </Stack>
+    </GestureHandlerRootView>
   );
 }
 

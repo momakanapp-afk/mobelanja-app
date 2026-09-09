@@ -11,15 +11,12 @@ export interface Product {
 }
 
 export interface User {
-  _id: string;
-  clerkId: string;
   email: string;
   name: string;
+  facebook: string;
+  kontak: string;
+  kotakab: string;
   imageUrl: string;
-  addresses: Address[];
-  wishlist: string[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface Address {
@@ -31,6 +28,7 @@ export interface Address {
   state: string;
   zipCode: string;
   phoneNumber: string;
+  geolokasi: string;
   isDefault: boolean;
 }
 

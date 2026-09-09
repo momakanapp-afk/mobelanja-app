@@ -3,17 +3,13 @@ import SafeScreen from "@/components/SafeScreen";
 import TextInputCart from "@/components/TextInputCart";
 import useCart from "@/hooks/useCart";
 import { useApi } from "@/lib/api";
+import { formatRupiah } from "@/lib/utils";
 import { CartItem } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { ToastContainer } from "rn-toastify";
-
-export interface tipelocUpd {
-  prodId:string;
-  qty:number;
-}
 
 const CartScreen = () => {
   const api = useApi();
@@ -26,10 +22,9 @@ const CartScreen = () => {
   // render ulang saat server data berubah (invalidate)
   useEffect(()=>{
     setCartItems(cart?.items)
-    console.log("Invalidate event")
   },[cart])
 
-  const[cartItems,setCartItems] = useState(cart?.items)
+  const[CartItems,setCartItems] = useState(cart?.items)
 
   // Auto sync to backend
   const isInitialMount = useRef(true);
@@ -39,19 +34,20 @@ const CartScreen = () => {
       isInitialMount.current = false;
       return;
     }
-    if (cartItems===undefined) return
-    syncCart(cartItems);
-    console.log("Sync event")
+    if (CartItems===undefined) return
+    syncCart(CartItems);
     
-  },[cartItems])
+  },[CartItems])
 
-  
+
   // Operasi SUM perkalian antar properti (price * qty)
   // acc: accumulator
   // Jangan menggunakan useState() untuk total !
-  const total = (cartItems ?? []).reduce(
+  const total = (CartItems ?? []).reduce(
     (acc, item) => acc + item.product.price * item.quantity, 0
   );
+
+  const jmlTotal = CartItems?.length ?? 0
 
   const shipping = 0
   const tax = 0
@@ -60,7 +56,6 @@ const CartScreen = () => {
   const handleDynEvent = (ev:string, pid:string, qty:number)=>{
     if (ev==='removeFromCart') locRemoveFromCart(pid)
     if (ev==='updateQuantity') locUpdateQuantity({productId:pid,quantity:qty})
-    // if (!isUpdating || isRemoving) setTotal(subTotal)
   }
 
   // Update qty local state (contoh parameter json)
@@ -91,23 +86,14 @@ const CartScreen = () => {
     .filter((item) => item.product._id !== prodId));
   }
  
-  function formatRupiah(angka: number): string {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(angka).replace('Rp', 'Rp.');
-  }
-
   if (isLoading) return <LoadingUI />;
   if (isError) return <ErrorUI />;
-  if (cartItems===undefined) return  <EmptyUI />;
-  if (cartItems.length === 0) return <EmptyUI />;
+  if (CartItems===undefined) return  <EmptyUI />;
+  if (CartItems.length === 0) return <EmptyUI />;
 
   return (
     <SafeScreen>
-      <Text className="px-6 pb-5 text-text-primary text-2xl font-bold tracking-tight">
+      <Text className="px-6 pb-5 text-primary text-xl font-bold tracking-tight">
         Keranjang belanja
       </Text>
 
@@ -118,7 +104,7 @@ const CartScreen = () => {
       >
         <View className="px-6 gap-2">
 
-          { cartItems.map((item) => {
+          { CartItems.map((item) => {
             return (
               <View key={item._id} className="bg-surface rounded-3xl overflow-hidden ">
 
@@ -132,7 +118,7 @@ const CartScreen = () => {
                       contentFit="cover"
                       style={{ width: 112, height: 112, borderRadius: 16 }}
                     />
-                    <View className="absolute top-2 right-2 bg-primary rounded-full px-2 py-0.5">
+                    <View className="absolute top-2 right-2 bg-accent rounded-full px-2 py-0.5">
                       <Text className="text-background text-xs font-bold">×{item.quantity}</Text>
                     </View>
                   </View>
@@ -161,14 +147,14 @@ const CartScreen = () => {
                       namaBrg={item.product.name}
                       dynEvent={handleDynEvent}
                     />
-                    
+
                     <View>
                       <Text className="text-text-secondary text-sm">
                         {formatRupiah(item.product.price)} /pcs 
                       </Text>
                     </View>
 
-                    
+
                   </View>
                 </View>
               </View>
@@ -193,7 +179,7 @@ const CartScreen = () => {
           <View className="flex-row items-center">
             <Ionicons name="cart" size={20} color="#1DB954" />
             <Text className="text-text-secondary ml-2">
-              1 Item
+              {jmlTotal} Item
             </Text>
           </View>
           <View className="flex-row items-center">
@@ -201,7 +187,7 @@ const CartScreen = () => {
               {formatRupiah(total)}
             </Text>
           </View>
-        </View>
+        </View> 
 
         {/* Checkout Button */}
         <TouchableOpacity

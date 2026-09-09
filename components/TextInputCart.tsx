@@ -33,11 +33,10 @@ const TextInputCart = ({defVal,prodId,namaBrg,dynEvent}:tipeTIC) => {
   {
     // Tampilkan text dulu
     setTextVal(teks);
-
     // Edit jumlah dengan mengosongkan teks dulu
     if (teks==='') return
 
-    // // validasi angka 
+    // validasi angka 
     const jml = Number(teks);
     if (jml > 500) {
       toast.error('Maksimal jumlah pembelian adalah 500', {
@@ -71,6 +70,7 @@ const TextInputCart = ({defVal,prodId,namaBrg,dynEvent}:tipeTIC) => {
   // Debounce update interatif jumlah ke server
   const debJml = useDebounce(textVal, 300);
   useEffect(()=>{
+    if (debJml==='') return
     handleDynEvent('updateQuantity',prodId,Number(debJml));
   },[debJml])
 
