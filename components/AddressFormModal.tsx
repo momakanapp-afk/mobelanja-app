@@ -31,16 +31,15 @@ interface AddressFormData {
 }
 
 interface AddressFormModalProps {
-  visible: boolean;
-  isEditing: boolean;
   addressForm: AddressFormData;
   isAddingAddress: boolean;
   isUpdatingAddress: boolean;
+  isEditing: boolean;
   onClose: () => void;
-  onSave: () => void;
   onFormChange: (form: AddressFormData) => void;
+  onSave: () => void;
+  visible: boolean;
 }
-
 
 const AddressFormModal = ({
   addressForm,
@@ -52,7 +51,6 @@ const AddressFormModal = ({
   onSave,
   visible,
 }: AddressFormModalProps) => {
-
 
   // Segala fungsi dan definisi masukkan dalam body yg akan diexport !
   // atau compile akan error 
@@ -77,7 +75,7 @@ const AddressFormModal = ({
 
       onFormChange({ ...addressForm, 
         geolokasi: location.coords.latitude.toFixed(8)+', '+location.coords.longitude.toFixed(8) });
-      akurasiJarak.current = String(location.coords.accuracy?.toFixed(2));
+      akurasiJarak.current = String(location.coords.accuracy?.toFixed(1));
     } catch (error:any) {
       Alert.alert('Error', 'Gagal mengambil lokasi:');
     } finally {

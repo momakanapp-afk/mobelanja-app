@@ -22,7 +22,6 @@ const CartScreen = () => {
   // render ulang saat server data berubah (invalidate)
   useEffect(()=>{
     setCartItems(cart?.items)
-    console.log("Invalidate event")
   },[cart])
 
   const[CartItems,setCartItems] = useState(cart?.items)

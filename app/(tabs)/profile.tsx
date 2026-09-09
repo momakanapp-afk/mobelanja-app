@@ -14,7 +14,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const MENU_ITEMS = [
   { id: 1, icon: "person-outline", title: "Ubah Profil", color: "#3B82F6", action: "/profile-detail" },
-  { id: 2, icon: "newspaper-outline", title: "Daftar Pesanan", color: "#10B981", action: "/orders" },
+  { id: 2, icon: "newspaper-outline", title: "Daftar Transaksi", color: "#10B981", action: "/orders" },
   { id: 3, icon: "location-outline", title: "Alamat Kirim", color: "#F59E0B", action: "/addresses" },
   { id: 4, icon: "ticket-outline", title: "Kupon Diskon", color: "#b91010", action: "/voucher" },
 ] as const;
@@ -71,6 +71,9 @@ const ProfileScreen = () =>
       addImageWithCheck(usertbl.imageUrl)
     } else {
       setGambar(user?.imageUrl)
+      if (user?.imageUrl!==undefined) {
+        addImageWithCheck(user.imageUrl)
+      }
     }
   },[usertbl]) 
 
@@ -78,12 +81,11 @@ const ProfileScreen = () =>
     setShowPopup(false)
     if (imagePicked!==null) {
       (async () => {
-        // Resize Max 2000px
+        // Resize Dimension
         const processed = await processImage(imagePicked, {
           maxDimension: 1500,
           compress: 0.8,
         }); 
-        
         const respon = await uploadToCloudinary(processed.uri);
         if (respon!==null) {
           saveImage(respon.secure_url);
@@ -115,7 +117,7 @@ const ProfileScreen = () =>
       {isUploading && (<View className="relative">
         <View className="absolute w-40 h-8 rounded-full item left-4 top-9 flex-row bg-text-primary py-1 px-1 z-20">
           <View className="h-auto bg-primary rounded-full" style={{width:`${progress}%`}}>
-            <Text className="text-base text-center overflow-visible font-bold">{statusText}</Text>
+            <Text className="text-base text-center font-bold">{statusText}</Text>
           </View>
         </View>
       </View>)}
@@ -124,7 +126,7 @@ const ProfileScreen = () =>
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
       >
-        {/* HEADER */}
+        {/* +++++++ HEADER ++++++++++ */}
         <View className="px-6 pb-5 border-b border-surface flex-row items-center">
           <Text className="text-primary text-xl font-bold">Profil Pengguna</Text>
         </View>
@@ -174,10 +176,16 @@ const ProfileScreen = () =>
 
               </View>
 
-              <View className="flex-1 ml-4">
+              <View className="flex-1 ml-4"> 
                 <Text className="text-text-primary text-xl font-bold mb-1">
-                  {user?.firstName} {user?.lastName}
+                  {usertbl?.name ? usertbl.name : user?.firstName+' '+user?.lastName}
                 </Text>
+                {/* TAMPILKAN KOTA */}
+                {usertbl?.kotakab ? (
+                <Text className="text-text-secondary text-sm mb-1">
+                  {usertbl.kotakab} {usertbl.kontak}
+                </Text>
+                ) : ''}
                 <Text className="text-text-secondary text-sm">
                   {user?.emailAddresses?.[0]?.emailAddress || "No email"}
                 </Text>

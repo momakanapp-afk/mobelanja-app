@@ -20,6 +20,7 @@ export const useProfile = () =>
     },
   });
 
+  // SAVE PROFILE IMAGE 
   const saveImageUrl = useMutation({
     mutationFn: async (imgUrl:string) => {
       const { data } = await api.post<{ isSuccess:boolean,imgUrl:string }>(
@@ -40,10 +41,29 @@ export const useProfile = () =>
       }
     }
   })
+  // UPDATE FORM PROFILE
+  const changeProfileData = useMutation({
+    mutationFn: async (UserForm:Omit<User,"imageUrl">) => {
+      const { data } = await api.post<{ isSuccess:boolean }>(
+        "/users/profile.php", 
+        { // Payload
+          act: 'saveForm',
+          data: UserForm
+        });
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data.isSuccess) {
+        queryClient.invalidateQueries({ queryKey: ["usertbl"] });
+      }
+    }
+  })
 
   return {
     usertbl,
+    tungguData: isLoading,
     saveImage: saveImageUrl.mutate,
-    tungguData: isLoading
+    changeProfile: changeProfileData.mutate,
+    isSaveProfile: changeProfileData.isPending
   }
 }
