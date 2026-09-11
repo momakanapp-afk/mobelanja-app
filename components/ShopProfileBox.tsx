@@ -2,17 +2,26 @@ import { FormToko } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
 
 interface ShopProfileProps {
   datatoko: FormToko | null;
-
+  isLoading: boolean;
 }
 
-const ShopProfileBox = ({datatoko}:ShopProfileProps) => {
+const ShopProfileBox = ({datatoko,isLoading}:ShopProfileProps) => {
 
-  if (datatoko===null) {
+  if (isLoading) {
+    return (
+      <View className="py-20 items-center justify-center">
+        <ActivityIndicator size="large" color="#fbd502" />
+        <Text className="text-text-secondary text-xl mt-4">Sedang memuat data</Text>
+      </View>
+    );
+  }
+  
+  if (datatoko?.name===undefined) {
     return (
       <View className="flex-row rounded-2xl bg-surface p-4 mx-6 mt-6">
         <Ionicons name="storefront-outline" size={55} color="#B3B3B3" />
@@ -37,39 +46,33 @@ const ShopProfileBox = ({datatoko}:ShopProfileProps) => {
     )
   }
 
-
   return (
-    <View className="px-6 pb-8">
-      <View className="rounded-3xl p-6">
+    <View className="px-6 py-4">
+      <View className="rounded-3xl px-6">
         <View className="flex-row items-center">
-          <View className="relative">
-            <TouchableOpacity
-              activeOpacity={0.5}
-              onPress={()=>{}}
-            >
-              <Image
-                source={datatoko.imageUrl}
-                style={{ width: 90, height: 90, borderRadius: 50 }}
-                transition={200}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              className="absolute w-[35px] h-[35px] -bottom-1 -right-1 bg-primary rounded-full size-7 items-center justify-center border border-surface"
-              activeOpacity={0.5}
-              onPress={()=>{}}
-            >
-              <Ionicons name="camera" size={24} color="#121212" />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={()=>{}}
+          >
+            <Image
+              source={datatoko?.imageUrl}
+              style={{ width: 100, height: 100, borderRadius: 50 }}
+              transition={200}
+            />
+          </TouchableOpacity>
 
           <View className="flex-1 ml-4"> 
-            <Text className="text-text-primary text-xl font-bold mb-1">
-              NAMA_MERCHANT
+            <Text className="text-text-primary text-xl font-bold">
+              {datatoko?.name}
             </Text>
             <Text className="text-text-secondary text-sm">
-              PIN_MERCHANT
+              {datatoko?.kotakab} 
+            </Text>
+            <Text className="text-text-secondary text-sm">
+              Sejak {datatoko?.waktu} 
             </Text>
           </View>
+
         </View>
       </View>
     </View>

@@ -102,5 +102,6 @@ export interface FormToko {
   kontak: string;
   geolokasi: string;
   imageUrl: string;
+  waktu: string;
 }
 

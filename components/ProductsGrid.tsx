@@ -144,8 +144,8 @@ function NoProductsFound() {
   return (
     <View className="py-20 items-center justify-center">
       <Ionicons name="search-outline" size={60} color={"#666"} />
-      <Text className="text-text-primary text-xl font-semibold mt-4">Hasil Tidak ditemukan</Text>
-      <Text className="text-text-secondary text-base mt-2">Coba dengan pencarian lain</Text>
+      <Text className="text-text-primary text-lg font-semibold mt-4">Tidak ada barang untuk ditampilkan</Text>
+      <Text className="text-text-secondary text-base mt-2">Coba manfaatkan pencarian</Text>
     </View>
   );
 }

@@ -25,8 +25,7 @@ const screenBukaToko = () => {
   const [mytoastVisible,setMytoastvisible] = useState(false);
   const {processImage} = useImageProcess();
   const [tokoForm,setTokoForm] = 
-  useState<FormToko>({
-    imageUrl:"",
+  useState<Omit<FormToko,"imageUrl"|"waktu">>({
     name:"",
     desc:"",
     alamat: "",
@@ -37,17 +36,18 @@ const screenBukaToko = () => {
   })
   const toast = useToast();
   const urlUploaded = useRef('');
+  const [logoToko, setLogoToko] = useState('');
 
-  // SAVE BUTTON
+  // HANDLE SAVE DATA TO SERVER
   const handleSave = async ()=>{
     if (!tokoForm.name || !tokoForm.kotakab) {
-      toast.error('Nama Toko dan Kota Kab harus diisi', {
+      toast.error('Nama Toko dan Kota harus diisi', {
         title: 'Isi Nama dan Kota',
         duration: 3500,
       });
       return;
     }
-    if (imagePicked===null) {
+    if (logoToko==='') {
         toast.error('Pilih dulu gambar / logo toko anda', {
           title: 'Pilih gambar',
           duration: 3500,
@@ -55,27 +55,32 @@ const screenBukaToko = () => {
       return;
     }
     setMytoastvisible(true);
-    setMytoastmsg('Upload gambar');
-    // Resize Dimension
-    const ImgResized = await processImage(imagePicked, {
-      maxDimension: 1920,
-      compress: 0.8,
-    }); 
-    // UPLOAD FIRST
-    const uploadRes = await uploadToCloudinary(ImgResized.uri);
-    if (uploadRes?.secure_url!==undefined) {
-      urlUploaded.current = uploadRes.secure_url;
+
+    // Cek dalam mode edit gambar direplace / tidak
+    if (imagePicked!==null) {
+      setMytoastmsg('Upload gambar');
+      // Resize Dimension
+      const ImgResized = await processImage(logoToko, {
+        maxDimension: 1920,
+        compress: 0.8,
+      }); 
+      // UPLOAD
+      const uploadRes = await uploadToCloudinary(ImgResized.uri);
+      if (uploadRes?.secure_url!==undefined) {
+        urlUploaded.current = uploadRes.secure_url;
+      }
+      else { 
+        setMytoastvisible(false);
+        toast.error('Upload foto gagal, coba kembali', {
+          title: 'Error Upload',
+          duration: 3500,
+        });
+        return;
+      }
     }
-    else { 
-      setMytoastvisible(false);
-      toast.error('Upload foto gagal, coba kembali', {
-        title: 'Error Upload',
-        duration: 3500,
-      });
-      return;
-    }
+
     // SAVE TO BACKEND
-    const actSave = merchantData ? 'newForm' : 'editForm';
+    const actSave = merchantData?.name===undefined ? 'newForm' : 'editForm';
     setMytoastmsg('Menyimpan data di server');
     saveMerchant(
     {
@@ -98,7 +103,7 @@ const screenBukaToko = () => {
     }
   },[statusText])
 
-  // Geolokasi 
+  // HANDLE GEOLOKASI 
   const {loadLoc,getMyGeolocation,akurasi,hasilGeoLokasi} = useGetMyGeolocation();
   useEffect(()=>{
     if (loadLoc) {
@@ -112,6 +117,30 @@ const screenBukaToko = () => {
     }
     
   },[loadLoc]);
+
+  // HANDLE imagePicked
+  useEffect(()=>{
+    if (imagePicked!==null) {
+      setLogoToko(imagePicked)
+    }
+  },[imagePicked])
+
+  // HANDLE EDIT DATA
+  useEffect(()=>{
+    if (merchantData===null) {
+      return
+    }
+    setTokoForm({
+      name: merchantData.name,
+      desc: merchantData.desc,
+      alamat: merchantData.alamat,
+      kotakab: merchantData.kotakab,
+      kodepos: merchantData.kodepos,
+      kontak: merchantData.kontak,
+      geolokasi: merchantData.geolokasi,
+    })
+    setLogoToko(merchantData.imageUrl)
+  },[merchantData])
   
   return (
   <KeyboardAvoidingView
@@ -128,7 +157,9 @@ const screenBukaToko = () => {
         <TouchableOpacity onPress={() => router.back()} className="mr-4">
           <Ionicons name="arrow-back" size={26} color="#ff7f23" />
         </TouchableOpacity>
-        <Text className="text-primary text-xl font-bold">Buka Toko</Text>
+        <Text className="text-primary text-xl font-bold">
+          {merchantData===null ? "Buka Toko" : "Update Data Toko"}
+        </Text>
       </View>
 
       <ScrollView
@@ -140,11 +171,11 @@ const screenBukaToko = () => {
         <View className='w-1/2 items-center py-8'>
           <Text className='text-text-secondary mb-2'>Pilih Logo/Gambar Toko</Text>
           {/* +++ IMAGE INIT & IMAGE PICKED */}
-          {imagePicked===null ?
+          {logoToko==='' ?
             (<Ionicons name='image-outline' size={100} color="#B3B3B3" />)
           :
             (<Image
-                source={imagePicked}
+                source={logoToko}
                 style={{ width: 150, height: 150, borderRadius: 75 }}
                 transition={200}
             />)}
@@ -247,6 +278,7 @@ const screenBukaToko = () => {
             placeholder="Kode Pos alamat"
             placeholderTextColor="#666"
             value={tokoForm.kodepos}
+            keyboardType="numeric"
             onChangeText={(text) => setTokoForm({ ...tokoForm, kodepos: text })}
           />
         </View>
@@ -261,6 +293,7 @@ const screenBukaToko = () => {
             placeholder="Nomor kontak yang bisa dihubungi"
             placeholderTextColor="#666"
             value={tokoForm.kontak}
+            keyboardType="numeric"
             onChangeText={(text) => setTokoForm({ ...tokoForm, kontak: text })}
           />
         </View>
@@ -275,6 +308,7 @@ const screenBukaToko = () => {
             placeholder="contoh: -7.6015835537, 110.9682985)"
             placeholderTextColor="#666"
             value={tokoForm.geolokasi}
+            keyboardType="numeric"
             onChangeText={(text) => setTokoForm({ ...tokoForm, geolokasi: text })}        />
         </View>
         <Pressable

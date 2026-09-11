@@ -201,16 +201,16 @@ const ProfileScreen = () =>
             <TouchableOpacity
               key={item.id}
               className="bg-surface rounded-2xl p-5 items-center justify-center"
-              style={{ width: "47%",backgroundColor: item.color + "20" }}
+              style={{ width: "47%",backgroundColor: "#282828" }}
               activeOpacity={0.5}
               onPress={() => handleMenuPress(item.action)}
             >
               <View
                 className="rounded-full w-16 h-16 items-center justify-center mb-4"
               >
-                <Ionicons name={item.icon} size={42} color={item.color} />
+                <Ionicons name={item.icon} size={42} color="#B3B3B3" />
               </View>
-              <Text className="text-text-primary font-bold text-base">{item.title}</Text>
+              <Text className="text-[#B3B3B3] font-bold text-base">{item.title}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -239,7 +239,8 @@ const ProfileScreen = () =>
 
         {/* SIGNOUT BTN */}
         <TouchableOpacity
-          className="mx-6 mb-3 bg-surface rounded-2xl py-4 flex-row items-center justify-center border-2 border-red-500/20"
+          className="mx-6 mb-3 bg-surface rounded-2xl py-4 flex-row 
+          items-center justify-center border-2 border-red-500/20"
           activeOpacity={0.8}
           onPress={() => signOut()}
         >

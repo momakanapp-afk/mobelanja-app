@@ -44,12 +44,12 @@ export const useMerchant = () =>
   // NEW/UPDATE FORM PROFILE
   const saveMerchant = useMutation({
     mutationFn: async ({mdata,imgurl,act}:
-      {mdata:FormToko,imgurl:string,act:"editForm"|"newForm"}) => {
+      {mdata:Omit<FormToko,"imageUrl"|"waktu">,imgurl:string,act:"editForm"|"newForm"}) => {
       const { data } = await api.post<{ isSuccess:boolean }>(
         "/users/merchant.php", 
         { // Payload
           act: act,
-          data: mdata,
+          data: mdata, 
           urlimg: imgurl
         });
       return data;

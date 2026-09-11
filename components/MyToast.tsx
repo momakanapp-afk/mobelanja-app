@@ -57,7 +57,7 @@ export const MyToast: React.FC<ToastProps> = ({
       shadow-lg border border-slate-700 
       max-w-[90%] items-center">
         <View className='px-6 flex-row'>
-          <Ionicons name='warning-outline' size={18} className='mr-2' />
+          <Ionicons name='hourglass-outline' size={18} className='mr-2' />
           <Text className="text-black text-base font-medium break-words">
             {message}
           </Text>
