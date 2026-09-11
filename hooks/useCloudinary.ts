@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 // Interface untuk Response Sukses dari Cloudinary API
 export interface CloudinaryUploadResponse {
@@ -30,7 +30,6 @@ export const useCloudinaryUpload = () =>
   const [statusText, setStatusText] = useState<string>('');
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const urlUploaded = useRef('');
 
   const uploadToCloudinary = async (fileUri: string): Promise<CloudinaryUploadResponse | null> => 
   {
@@ -42,7 +41,6 @@ export const useCloudinaryUpload = () =>
       setProgress(0);
       setStatusText('');
       setError(null);
-      urlUploaded.current = ''
       setIsUploading(false)
     };
 
@@ -84,15 +82,14 @@ export const useCloudinaryUpload = () =>
               setProgress(percentCompleted);
 
               if (percentCompleted < 100) {
-                setStatusText(`${percentCompleted}%`);
+                setStatusText(`${percentCompleted}% upload`);
               } else {
-                setStatusText('Menyimpan...');
+                setStatusText('finishing');
               }
             }
           },
         }
       );
-      urlUploaded.current = response.data.secure_url;
       return response.data;  // +++++++++++ RETURN RESULT DISINI
     } 
     catch (err) {
@@ -117,7 +114,6 @@ export const useCloudinaryUpload = () =>
     progress,
     statusText,
     isUploading,
-    urlUpl: urlUploaded.current,
     error,
   };
 };

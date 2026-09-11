@@ -92,3 +92,15 @@ export interface CartItem {
   };
   quantity: number;
 }
+
+export interface FormToko {
+  name: string;
+  desc: string;
+  kotakab: string;
+  alamat: string;
+  kodepos: string;
+  kontak: string;
+  geolokasi: string;
+  imageUrl: string;
+}
+

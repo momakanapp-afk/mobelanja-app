@@ -1,9 +1,8 @@
+import { useGetMyGeolocation } from "@/hooks/useGetMyGeolocation";
 import { Ionicons } from "@expo/vector-icons";
-import * as Location from 'expo-location';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -13,9 +12,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import useToast, { ToastContainer } from "rn-toastify";
+import { ToastContainer } from "rn-toastify";
+import { MyToast } from "./MyToast";
 import SafeScreen from "./SafeScreen";
 
 interface AddressFormData {
@@ -54,59 +54,22 @@ const AddressFormModal = ({
 
   // Segala fungsi dan definisi masukkan dalam body yg akan diexport !
   // atau compile akan error 
-  const akurasiJarak = useRef('');
-  const [loadLoc, setLoadLoc] = useState(false);
-  // FUNGSI AMBIL GEOLOKASI
-  const getMyGeolocation = async () => {
-    setLoadLoc(true);
-    try {
-      // 1. Minta izin akses lokasi
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Izin Ditolak', 'Izin untuk mengakses lokasi ditolak.');
-        setLoadLoc(false);
-        return;
-      }
-      // 2. Ambil koordinat posisi saat ini
-      // Accuracy.Highest / Accuracy.Balanced bisa disesuaikan kebutuhan
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Highest,
-      });
-
-      onFormChange({ ...addressForm, 
-        geolokasi: location.coords.latitude.toFixed(8)+', '+location.coords.longitude.toFixed(8) });
-      akurasiJarak.current = String(location.coords.accuracy?.toFixed(1));
-    } catch (error:any) {
-      Alert.alert('Error', 'Gagal mengambil lokasi:');
-    } finally {
-      setLoadLoc(false);
-    }
-  };
-
-  const toast = useToast();
-  const idToast = useRef('');
+  const [mytoastVisible,setMytoastvisible] = useState(false);
+  const [mytoastMsg,setMytoastmsg] = useState('');
   
   // Loading lokasi
+  const {loadLoc,getMyGeolocation,akurasi,hasilGeoLokasi} = useGetMyGeolocation();
+  
   useEffect(()=>{
     if (loadLoc) {
-      idToast.current = toast.warning('Sedang mengambil geolokasi ...', {
-        duration: Infinity, 
-      });
+      setMytoastvisible(true);
+      setMytoastmsg('Mengambil geolokasi anda');
     }
     else {
-      if (idToast.current==='') return
-      toast.dismiss(idToast.current)
-      idToast.current = toast.success('Akurasi '+akurasiJarak.current+' m ulangi jika kurang akurat', {
-        duration: 4000, 
-      });
+      setMytoastmsg(`Akurasi ${akurasi} m ulangi jika kurang akurat`);
+      setTimeout(()=>setMytoastvisible(false),3000);
+      onFormChange({ ...addressForm, geolokasi: hasilGeoLokasi });
     }
-
-    // Cleanup jika komponen di-unmount saat masih loading
-    return () => {
-      if (idToast.current) {
-        toast.dismiss(idToast.current);
-      }
-    };
   },[loadLoc])
   
   
@@ -114,9 +77,14 @@ const AddressFormModal = ({
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+        style={{flex:1}}
       >
         <SafeScreen>
+          <MyToast  
+            message={mytoastMsg}
+            isVisible={mytoastVisible}
+            onHide={()=>{setMytoastvisible(false)}}
+          />
           {/* HEADER */}
           <View className="px-6 py-5 border-b border-surface flex-row items-center justify-between">
             <Text className="text-primary text-xl font-bold">
@@ -221,7 +189,8 @@ const AddressFormModal = ({
               </View>
               <Pressable
                 onPress={getMyGeolocation}
-                className="border-2 border-sky-600 bg-transparent active:bg-surface px-5 py-1 rounded-xl items-center justify-center flex-row"
+                className="border-2 border-sky-700 bg-sky-900 active:bg-sky-700 
+                  px-5 py-1 rounded-xl items-center justify-center flex-row"
               >
                 <Ionicons name="locate-sharp" size={23} color="#FFFFFF" />
                 <Text className="text-white font-semibold text-base ml-3">

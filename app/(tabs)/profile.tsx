@@ -13,7 +13,7 @@ import Gallery from 'react-native-awesome-gallery';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const MENU_ITEMS = [
-  { id: 1, icon: "person-outline", title: "Ubah Profil", color: "#3B82F6", action: "/profile-detail" },
+  { id: 1, icon: "person-outline", title: "Ubah Profil", color: "#3babf6", action: "/profile-detail" },
   { id: 2, icon: "newspaper-outline", title: "Daftar Transaksi", color: "#10B981", action: "/orders" },
   { id: 3, icon: "location-outline", title: "Alamat Kirim", color: "#F59E0B", action: "/addresses" },
   { id: 4, icon: "ticket-outline", title: "Kupon Diskon", color: "#b91010", action: "/voucher" },
@@ -33,7 +33,7 @@ const ProfileScreen = () =>
   const [gambar,setGambar] = useState<string|null>();
 
   // Upload Hooks 
-  const { uploadToCloudinary, progress, statusText, isUploading, urlUpl} =
+  const { uploadToCloudinary, progress, statusText, isUploading} =
     useCloudinaryUpload();
   const {usertbl, saveImage} = useProfile();
   const {processImage} = useImageProcess();
@@ -49,7 +49,7 @@ const ProfileScreen = () =>
   const [IMAGES, setIMAGES] = useState<ImageItem[]>([]);
 
   const addImageWithCheck = (newUri: string): void => {
-    // 1. Cek apakah URI sudah ada di dalam array state
+    // Cek apakah URI sudah ada di dalam array state
     const isDuplicate = IMAGES.some((item) => item.uri === newUri);
     if (isDuplicate) {
       return;
@@ -127,7 +127,7 @@ const ProfileScreen = () =>
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         {/* +++++++ HEADER ++++++++++ */}
-        <View className="px-6 pb-5 border-b border-surface flex-row items-center">
+        <View className="px-6 py-4 border-b border-surface flex-row items-center">
           <Text className="text-primary text-xl font-bold">Profil Pengguna</Text>
         </View>
         <View className="px-6 pb-8">
@@ -214,6 +214,28 @@ const ProfileScreen = () =>
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* DAFTAR TOKO */}
+        <TouchableOpacity
+          className="bg-surface rounded-2xl p-4 mb-3 mx-6"
+          activeOpacity={0.5}
+        >
+          <View className="flex-row items-center">
+            <View className="rounded-full w-16 h-16 items-center justify-center mr-4">
+              <Ionicons name="storefront-outline" size={38} color="#B3B3B3" />
+            </View>
+
+            <View className="flex-1">
+              <Text className="text-text-primary font-bold text-base mb-1">
+                Daftar Toko
+              </Text>
+              <Text className="text-text-secondary text-sm">
+                Daftar toko langganan anda
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#B3B3B3" />
+          </View>
+        </TouchableOpacity>
 
         {/* SIGNOUT BTN */}
         <TouchableOpacity
