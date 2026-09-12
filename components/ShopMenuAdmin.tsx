@@ -72,6 +72,7 @@ const ShopMenuAdmin = ({datatoko,isLoading}:PropsShopMA) => {
     <TouchableOpacity
       className="bg-green-800/40 rounded-2xl p-4 mb-3 mx-6 border-2 border-green-800"
       activeOpacity={0.5}
+      onPress={()=>router.push('/daftarbarang')}
     >
       <View className="flex-row items-center">
         <View className="rounded-full w-16 h-16 items-center justify-center mr-4">

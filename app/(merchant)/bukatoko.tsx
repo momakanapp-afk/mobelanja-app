@@ -20,12 +20,12 @@ const screenBukaToko = () => {
     useCloudinaryUpload();
   const {merchantData,saveMerchant} = useMerchant();
   const [mytoastMsg,setMytoastmsg] = useState('');
+  const [mytoastVisible,setMytoastvisible] = useState(false);
   const {imagePicked,takePhoto,pickImageFromGallery,resetImagePicked} = 
     useProfileImage();
-  const [mytoastVisible,setMytoastvisible] = useState(false);
   const {processImage} = useImageProcess();
   const [tokoForm,setTokoForm] = 
-  useState<Omit<FormToko,"imageUrl"|"waktu">>({
+  useState<Omit<FormToko,"imageUrl"|"waktu"|"_id">>({
     name:"",
     desc:"",
     alamat: "",
@@ -84,8 +84,8 @@ const screenBukaToko = () => {
     setMytoastmsg('Menyimpan data di server');
     saveMerchant(
     {
-      mdata:tokoForm,
       act:actSave,
+      mdata:tokoForm,
       imgurl:urlUploaded.current
     },
     {
@@ -330,7 +330,12 @@ const screenBukaToko = () => {
           disabled={mytoastVisible}
         >
           {mytoastVisible ? (
-            <ActivityIndicator size="small" color="#121212" />
+            <View className='flex-row'>
+              <ActivityIndicator size="small" color="#121212" />
+              <Text className="text-background font-bold text-lg ml-3">
+                Menyimpan ke server
+              </Text>
+            </View>
           ) : (
             <Text className="text-background font-bold text-lg">
               Simpan Data

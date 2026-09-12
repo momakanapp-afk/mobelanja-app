@@ -9,6 +9,14 @@ export interface Product {
   averageRating: number;
   totalReviews: number;
 }
+export interface M_Produk {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  images: string[];
+}
 
 export interface User {
   email: string;
@@ -94,6 +102,7 @@ export interface CartItem {
 }
 
 export interface FormToko {
+  _id: string;
   name: string;
   desc: string;
   kotakab: string;

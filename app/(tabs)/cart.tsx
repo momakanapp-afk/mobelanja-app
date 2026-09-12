@@ -238,11 +238,6 @@ function ErrorUI() {
 function EmptyUI() {
   return (
     <View className="flex-1 bg-background">
-      <View className="px-6 pt-16 pb-5">
-        <Text className="px-6 pb-5 text-text-primary text-2xl font-bold tracking-tight">
-          Keranjang belanja
-        </Text>
-      </View>
       <View className="flex-1 items-center justify-center px-6">
         <Ionicons name="cart-outline" size={80} color="#666" />
         <Text className="text-text-primary font-semibold text-xl mt-4">Keranjangmu masih kosong</Text>

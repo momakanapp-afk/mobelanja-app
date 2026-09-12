@@ -18,13 +18,13 @@ const ShopScreen = () => {
           className="flex-1"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
-        > 
-        {/* +++++++ PROFILE BOX ++++++++++ */}
+        >
+        {/*  PROFILE BOX */}
         <ShopProfileBox 
           datatoko={merchantData}
           isLoading={tungguData}
         />
-
+        {/* ADMIN MENU */}
         <ShopMenuAdmin
           datatoko={merchantData}
           isLoading = {tungguData}
