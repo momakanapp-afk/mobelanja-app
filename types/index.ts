@@ -9,17 +9,22 @@ export interface Product {
   averageRating: number;
   totalReviews: number;
 }
+export interface M_Produk {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  images: string[];
+}
 
 export interface User {
-  _id: string;
-  clerkId: string;
   email: string;
   name: string;
+  facebook: string;
+  kontak: string;
+  kotakab: string;
   imageUrl: string;
-  addresses: Address[];
-  wishlist: string[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface Address {
@@ -31,6 +36,7 @@ export interface Address {
   state: string;
   zipCode: string;
   phoneNumber: string;
+  geolokasi: string;
   isDefault: boolean;
 }
 
@@ -94,3 +100,17 @@ export interface CartItem {
   };
   quantity: number;
 }
+
+export interface FormToko {
+  _id: string;
+  name: string;
+  desc: string;
+  kotakab: string;
+  alamat: string;
+  kodepos: string;
+  kontak: string;
+  geolokasi: string;
+  imageUrl: string;
+  waktu: string;
+}
+

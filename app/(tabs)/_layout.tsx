@@ -17,9 +17,9 @@ const TabsLayout = () => {
         tabBarInactiveTintColor: "#B3B3B3",
         tabBarStyle: {
           position: 'absolute',
-        backgroundColor:'#444',
+          backgroundColor:'#121212',
           borderTopWidth: 0,
-          height:  insets.bottom + 15,
+          height:  60,
           paddingTop: 4,
           paddingBottom: 2,
           marginHorizontal: 50,
@@ -38,29 +38,29 @@ const TabsLayout = () => {
       <Tabs.Screen 
         name='index' 
         options={{
-          title: 'Shop',
-          tabBarIcon: ({color,size}) => <Ionicons name="grid" size={size} color={color} />
+          title: 'Belanja',
+          tabBarIcon: ({color,size}) => <Ionicons name="bag-handle-sharp" size={28} color={color} />
         }}
       />
       <Tabs.Screen 
         name='cart' 
         options={{
-          title: 'Cart',
-          tabBarIcon: ({color,size}) => <Ionicons name="cart" size={size} color={color} />
+          title: 'Keranjang',
+          tabBarIcon: ({color,size}) => <Ionicons name="cart" size={32} color={color} />
         }}
       />
       <Tabs.Screen 
         name='profile' 
         options={{
           title: 'Profil',
-          tabBarIcon: ({color,size}) => <Ionicons name="person" size={size} color={color} />
+          tabBarIcon: ({color,size}) => <Ionicons name="person-sharp" size={size} color={color} />
         }}
       />
       <Tabs.Screen 
-        name='localUx' 
+        name='shop' 
         options={{
-          title: 'Local',
-          tabBarIcon: ({color,size}) => <Ionicons name="desktop" size={size} color={color} />
+          title: 'Jualan',
+          tabBarIcon: ({color,size}) => <Ionicons name="storefront" size={30} color={color} />
         }}
       />
 
