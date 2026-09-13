@@ -128,7 +128,6 @@ const MarketScreen = () =>
 
   return (
     <SafeScreen>
-
       {/* HEADER */}
       <View className="px-4 pt-2">
         <View className="flex-row items-center justify-between mb-3">
@@ -161,14 +160,12 @@ const MarketScreen = () =>
         )}
       </View>
 
-      <View>
-        <ProductsGrid 
-          products={displayProd ?? []}
-          isLoading={isLoading}
-          isError = {isError}
-          header={renderHeader}
-        />
-      </View>
+      <ProductsGrid 
+        products={displayProd ?? []}
+        isLoading={isLoading}
+        isError = {isError} 
+        header={renderHeader}
+      />
 
       <ToastContainer maxVisible={3} />
 

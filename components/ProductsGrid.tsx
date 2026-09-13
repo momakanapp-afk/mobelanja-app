@@ -5,18 +5,11 @@ import {
   ActivityIndicator,
   FlatList,
   Image,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from "react-native";
 import useToast from 'rn-toastify';
-
-const styles = StyleSheet.create({
-  flatListContent: {
-    paddingBottom: 250, 
-  },
-});
 
 const toast = useToast();
 const masuKeranjang = (barang:string) => {
@@ -66,7 +59,7 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
         <View className="relative">
           <Image
             source={{ uri: product.images[0] }}
-            className="w-full h-44 bg-background-lighter"
+            className="w-full h-40 bg-background-lighter"
             resizeMode="cover"
           />
         </View>
@@ -135,7 +128,8 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={NoProductsFound}
       ListHeaderComponent = {header}
-      contentContainerStyle = {styles.flatListContent}
+      contentContainerStyle = {{paddingBottom:250}}
+      contentContainerClassName="px-2"
     />
   );
 };

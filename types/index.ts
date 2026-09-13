@@ -17,7 +17,10 @@ export interface M_Produk {
   category: string;
   images: string[];
 }
-
+export interface tipeListImg {
+  id:string;
+  imgurl:string;
+}
 export interface User {
   email: string;
   name: string;

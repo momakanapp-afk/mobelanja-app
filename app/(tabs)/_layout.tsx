@@ -19,11 +19,11 @@ const TabsLayout = () => {
           position: 'absolute',
           backgroundColor:'#121212',
           borderTopWidth: 0,
-          height:  60,
+          height:  62,
           paddingTop: 4,
-          paddingBottom: 2,
+          paddingBottom: 4,
           marginHorizontal: 50,
-          marginBottom: insets.bottom,
+          marginBottom: insets.bottom+2,
           borderRadius: 16,
           overflow: "hidden"
         },
@@ -34,7 +34,6 @@ const TabsLayout = () => {
       }
     }
     >
-
       <Tabs.Screen 
         name='index' 
         options={{

@@ -21,7 +21,7 @@ const screenBukaToko = () => {
   const {merchantData,saveMerchant} = useMerchant();
   const [mytoastMsg,setMytoastmsg] = useState('');
   const [mytoastVisible,setMytoastvisible] = useState(false);
-  const {imagePicked,takePhoto,pickImageFromGallery,resetImagePicked} = 
+  const {imagePicked,takePhoto,pickImageFromGallery} = 
     useProfileImage();
   const {processImage} = useImageProcess();
   const [tokoForm,setTokoForm] = 

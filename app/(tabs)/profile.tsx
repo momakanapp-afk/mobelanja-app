@@ -248,7 +248,9 @@ const ProfileScreen = () =>
           <Text className="text-primary text-xl font-bold ml-3">Sign Out</Text>
         </TouchableOpacity>
 
-        <Text className="mx-6 mb-3 text-center text-text-secondary text-xs">Version 1.0.0</Text>
+        <Text className="mt-2 mb-3 text-center text-text-secondary text-xs">
+          Versi 1.0.0 - MoBelanja team: {'\n'}Habibi, Albar, Hairu, Gute
+        </Text>
       </ScrollView>
     </SafeScreen>
   );

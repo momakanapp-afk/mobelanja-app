@@ -19,7 +19,7 @@ export const MyToast: React.FC<ToastProps> = ({
   isVisible,
   onHide,
 }) => {
-  const translateY = useSharedValue(-200);
+  const translateY = useSharedValue(-130);
 
   useEffect(() => {
     if (isVisible) {
@@ -29,7 +29,7 @@ export const MyToast: React.FC<ToastProps> = ({
       });
     } else {
       translateY.value = withTiming(
-        -200,
+        -130,
         {
           duration: 300,
           easing: Easing.in(Easing.ease),

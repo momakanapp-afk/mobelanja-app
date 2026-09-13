@@ -8,7 +8,10 @@ export default function AuthRoutesLayout() {
   
   if (isLoaded) {
     if (isSignedIn) {
-      return <Stack screenOptions={{ headerShown: false }} />;
+      return <Stack screenOptions={{ 
+        headerShown: false, 
+        navigationBarHidden: false,
+      }} />;
     }
   }
 }

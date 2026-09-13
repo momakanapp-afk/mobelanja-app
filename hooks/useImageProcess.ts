@@ -97,5 +97,5 @@ export const useImageProcess = () => {
     []
   );
 
-  return { processImage, isProcessing, error };
+  return { processImage, isResizing:isProcessing, error };
 };

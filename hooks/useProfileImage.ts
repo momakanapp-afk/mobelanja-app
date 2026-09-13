@@ -5,11 +5,9 @@ import { Alert } from "react-native";
 
 function useProfileImage() {
 
-  const [showPopup, setShowPopup] = useState(false);
   const [imagePicked, setImagePicked] = useState<string|null>(null);
 
   const takePhoto = async () => {
-      setShowPopup(false); // Sembunyikan popup
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Izin Ditolak', 'Aplikasi membutuhkan izin kamera.');
@@ -29,7 +27,6 @@ function useProfileImage() {
 
   // 2. Ambil Gambar dari Galeri
   const pickImageFromGallery = async () => {
-    setShowPopup(false); // Sembunyikan popup
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Izin Ditolak', 'Aplikasi membutuhkan izin akses galeri.');
@@ -47,9 +44,7 @@ function useProfileImage() {
       setImagePicked(result.assets[0].uri);
     }
   };
-  const resetImagePicked = ()=>{
-    setImagePicked(null);
-  }
+  const resetImagePicked = () => setImagePicked(null);
 
   return {
     imagePicked,

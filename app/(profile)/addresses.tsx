@@ -21,7 +21,7 @@ function AddressesScreen() {
   } = useAddresses();
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
-  const [addressForm, setAddressForm] = useState({
+  const emptyForm = {
     label: "",
     fullName: "",
     streetAddress: "",
@@ -31,7 +31,8 @@ function AddressesScreen() {
     phoneNumber: "",
     geolokasi: "",
     isDefault: false,
-  });
+  };
+  const [addressForm, setAddressForm] = useState(emptyForm)
 
   const toast = useToast();
   
@@ -39,17 +40,7 @@ function AddressesScreen() {
     setShowAddressForm(true);
     setEditingAddressId(null);
     // Kosongkan form tambah alamat saat dibuka
-    setAddressForm({
-      label: "",
-      fullName: "",
-      streetAddress: "",
-      city: "",
-      state: "",
-      zipCode: "",
-      phoneNumber: "",
-      geolokasi: "",
-      isDefault: false,
-    });
+    setAddressForm(emptyForm);
   };
 
   const handleEditAddress = (address: Address) => {

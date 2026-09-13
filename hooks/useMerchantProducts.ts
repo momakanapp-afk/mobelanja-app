@@ -10,15 +10,15 @@ export const useMerchantProducts = () =>
   const api = useApi();
   const toast = useToast();
 
-    // GET DATA USE QUERY
-    const {data:medata,isLoading,isError} = useQuery({
-      queryKey: ["merchantProducts"],
-      queryFn: async () => {
-        const { data } = await api.get<{ mdata:M_Produk[] }>(
-          "/users/merchant_products.php");
-        return data.mdata;
-      },
-    });
+  // GET DATA USE QUERY
+  const {data:medata,isLoading,isError} = useQuery({
+    queryKey: ["merchantProducts"],
+    queryFn: async () => {
+      const { data } = await api.get<{ mdata:M_Produk[] }>(
+        "/users/merchant_products.php");
+      return data.mdata;
+    },
+  });
   
   return {
     MProducts: medata,

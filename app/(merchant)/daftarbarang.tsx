@@ -1,12 +1,13 @@
 import { MyToast } from '@/components/MyToast';
 import SafeScreen from '@/components/SafeScreen';
+import InputProductModal from '@/components/ShopProductModal';
 import { useMerchantProducts } from '@/hooks/useMerchantProducts';
 import { formatRupiah } from "@/lib/utils";
-import { M_Produk } from '@/types';
+import { M_Produk, tipeListImg } from '@/types';
 import { Entypo } from '@expo/vector-icons';
 import { Image } from "expo-image";
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
@@ -17,9 +18,71 @@ const ScreenDaftarBarang = () => {
   const [mytoastVisible,setMytoastvisible] = useState(false);
   const [itemSelected,setItemSelected] = useState('');
   const {MProducts,waitData} = useMerchantProducts();
-
+  const [modalVisible,setModalVisible] = useState(false);
   const clearText = () => {
     setSearchQuery('');
+  }
+  const emptyForm = {
+    _id: "",
+    name: "",
+    description: "",
+    price: 0,
+    category: "",
+    images: [],
+  }
+  const[formBarang,setFormBarang] = useState<M_Produk>(emptyForm);
+  const [displayNominal,setDisplayNom] = useState('');
+  const [listImgProd,setListImgProd] = useState<tipeListImg[]>([]);
+  const idImageCount = useRef(0);
+
+  // Single Source of Truth : Fungsi setState harus di lokasi tempat dibuat pertama 
+  const addImageToList = (imageurl:string) => {
+    idImageCount.current++;
+    const itembaru = {
+      id:'img-'+ idImageCount.current,
+      imgurl: imageurl
+    }
+    setListImgProd((prev)=>[...prev,itembaru]);
+  }
+  const handleInsertDisplay = (text:string) => {
+    setDisplayNom(text);
+  }
+  const handleHapusGambar = (idImg:string) => {
+    setListImgProd((prev) => prev.filter((item) => item.id !== idImg));
+  }
+  const onCloseModal = () => {
+    setModalVisible(false);
+    setFormBarang(emptyForm);
+    setListImgProd([]);
+  }
+  // MODAL TAMBAH ITEM
+  const inputNewItem = ()=> {
+    setListImgProd([]);
+    setDisplayNom('');
+    setModalVisible(true);
+  }
+  // MODAL EDIT ITEM
+  const inputEditItem = (item:M_Produk) => {
+    setFormBarang({
+      _id: item._id,
+      name: item.name,
+      description: item.description,
+      images: item.images,
+      price: item.price,
+      category: item.category
+    });
+    item.images.forEach((item,idx)=>{
+      idImageCount.current++;
+      setListImgProd((prev)=>(
+        [...prev,{id:'img-'+idImageCount.current,imgurl:item}]
+      ));
+    })
+    setDisplayNom(formatRupiah(item.price).replace('Rp.',''));
+    setModalVisible(true);
+  }
+  // SAVE INPUT BARANG 
+  const onSaveModal = () => {
+    
   }
 
   function NoProductsFound() {
@@ -36,42 +99,56 @@ const ScreenDaftarBarang = () => {
 
   // Parameter "tiap item" dari MProducts (Flatlist data) bertipe definisi M_Produk
   const renderProduk = ({item}:{item:M_Produk}) => {
-
-    return (
-      <TouchableOpacity
-        className={`mx-6 my-4 p-3 border-2 rounded-2xl relative
-          ${itemSelected===item._id ? 'border-primary bg-[#3d1e08]' : 'border-surface bg-surface '}`}
-        activeOpacity={0.7}
-        onPress={()=>{setItemSelected(item._id)}}
-      >
-        {/* MAIN WRAPPER */}
-        <View className='flex-row'>
-          <Image 
-            style={{ width: 80, height: 80, borderRadius: 40 }}
-            transition={200}
-            source={item.images[0]} 
-          />
-          {/* DETAIL ITEM */}
-          <View className='flex-1 px-2 ml-2'>
-            <Text className='text-text-primary text-base font-bold'>{item.name}</Text>
-            <Text className='text-text-primary text-lg'>{formatRupiah(item.price)}</Text>
-          </View>
-          {/* TOMBOL EDIT & HAPUS */}
-          {itemSelected===item._id ? (
-            <View className='flex-row mx-2 absolute bottom-0 right-0'>
-              <Pressable className='flex-row px-3 py-2 bg-[#ad5959] active:bg-[#ff8484]
-              rounded-xl mr-2'>
-                <Entypo name='trash' size={28} color='#fff' />
-              </Pressable>
-              <Pressable className='flex-row px-3 py-2 bg-[#00854b] 
-              rounded-xl active:bg-[#02b96a] ' >
-                <Entypo name='new-message' size={28} color='#fff' />
-              </Pressable>
-            </View>
-          ) : ""}
+  return (
+    <TouchableOpacity
+      className={`mx-6 mb-3 p-3 border-2 rounded-2xl relative
+        ${itemSelected===item._id ? 'border-primary bg-[#3d1e08]' : 'border-surface bg-surface '}`}
+      activeOpacity={0.7}
+      onPressIn={()=>{setItemSelected(item._id)}}
+    >
+      {/* MAIN WRAPPER */}
+      <View className='flex-row'>
+        <Image 
+          style={{ width: 80, height: 80, borderRadius: 40 }}
+          transition={200}
+          source={item.images[0]} 
+        />
+        {/* DETAIL ITEM */}
+        <View className='flex-1 px-2 ml-2'>
+          <Text className='text-text-primary text-base font-bold leading-tight'>
+            {item.name}
+          </Text>
+          <Text className='text-text-primary text-lg'>{formatRupiah(item.price)}</Text>
         </View>
-        
-      </TouchableOpacity>
+        {/* TOMBOL EDIT & HAPUS */}
+        {itemSelected===item._id ? (
+          <View className='flex-row mx-2 absolute bottom-0 right-0'>
+            <Pressable className='flex-row px-3 py-2 bg-[#b40f0f] 
+            active:bg-[#fd1111] rounded-xl mr-2'>
+              <Entypo name='trash' size={28} color='#fff' />
+            </Pressable>
+            <Pressable className='flex-row px-3 py-2 bg-[#00854b] 
+                rounded-xl active:bg-[#02b96a]' 
+              onPress={()=>inputEditItem(item)} 
+              disabled={modalVisible}
+            >
+              <Entypo name='new-message' size={28} color='#fff' />
+            </Pressable>
+          </View>
+        ) : ""}
+      </View>
+      
+    </TouchableOpacity>
+  )}
+
+  if (waitData) {
+    return (
+      <SafeScreen>
+        <View className="mt-20 py-20 items-center justify-center">
+          <ActivityIndicator size="large" color="#fbd502" />
+          <Text className="text-text-secondary text-xl mt-4">Memuat Daftar Barang</Text>
+        </View>
+      </SafeScreen>
     )
   }
   
@@ -115,6 +192,7 @@ const ScreenDaftarBarang = () => {
     <Pressable
       className="border-2 border-green-700 bg-green-700/30 
       active:bg-[#16a34a] rounded-2xl items-center mb-3 mx-6"
+      onPress={inputNewItem}
     >
       <View className="flex-row items-center pr-5">
         <View className="rounded-full w-16 h-[48px] items-center justify-center mr-4">
@@ -129,12 +207,7 @@ const ScreenDaftarBarang = () => {
       </View>
     </Pressable>
 
-    {waitData ? (
-      <View className="mt-8 py-20 items-center justify-center">
-        <ActivityIndicator size="large" color="#fbd502" />
-        <Text className="text-text-secondary text-xl mt-4">Memuat Daftar Barang</Text>
-      </View>
-    ) : (
+    {/* SCROLL LIST BARANG */}
     <FlatList 
       data={MProducts}
       keyExtractor={(item)=>item._id}
@@ -142,7 +215,20 @@ const ScreenDaftarBarang = () => {
       ListEmptyComponent={NoProductsFound}
       contentContainerStyle={{paddingBottom:200}}
     />
-    )}
+
+    {/* MODAL INPUT BARANG */}
+    <InputProductModal 
+      FormProduct={formBarang}
+      onFormChange={setFormBarang}
+      ListImg={listImgProd}
+      addListImg={addImageToList}
+      visible={modalVisible}
+      onClose={onCloseModal}
+      onSave={onSaveModal}
+      stateDspPrice={displayNominal}
+      setDisplayNom={handleInsertDisplay}
+      hapusGambarList={handleHapusGambar}
+    />
 
       
     </SafeScreen>
