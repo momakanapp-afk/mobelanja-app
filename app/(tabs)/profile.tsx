@@ -86,7 +86,7 @@ const ProfileScreen = () =>
           maxDimension: 1500,
           compress: 0.8,
         }); 
-        const respon = await uploadToCloudinary(processed.uri);
+        const respon = await uploadToCloudinary(processed.uri,'profile');
         if (respon!==null) {
           saveImage(respon.secure_url);
         }

@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 // Interface untuk Response Sukses dari Cloudinary API
 export interface CloudinaryUploadResponse {
@@ -30,12 +30,16 @@ export const useCloudinaryUpload = () =>
   const [statusText, setStatusText] = useState<string>('');
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const uploadPreset = useRef('preset-cB2z5t69bIDvWQX4tCbi');
 
-  const uploadToCloudinary = async (fileUri: string): Promise<CloudinaryUploadResponse | null> => 
+  const uploadToCloudinary = async (fileUri: string, preset: 'profile'|'produk'): Promise<CloudinaryUploadResponse | null> => 
   {
     // Server Credential
     const cloudName = 'vts55zhr'
-    const uploadPreset = 'preset-cB2z5t69bIDvWQX4tCbi'
+    if (preset==='produk') {
+      // Upload ke direktori foto_produk
+      uploadPreset.current = 'imgprod-hNCGilSqMqCtpA3yZp6Q';
+    }
 
     const resetUploadState = () => {
       setProgress(0);
@@ -63,7 +67,7 @@ export const useCloudinaryUpload = () =>
       type: type,
     } as unknown as Blob);
 
-    formData.append('upload_preset', uploadPreset);
+    formData.append('upload_preset', uploadPreset.current);
 
     try {
       const response = await axios.post<CloudinaryUploadResponse>(

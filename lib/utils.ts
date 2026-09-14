@@ -30,3 +30,10 @@ export const getStatusColor = (status: string) => {
     return rup
   };
 
+  // Menjeda script, berguna untuk memunculkan toast
+  export const sleepTimeout = (ms:number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  export const generateId = (): string => 
+  `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+

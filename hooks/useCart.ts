@@ -41,6 +41,10 @@ const useCart = () =>
         act: 'syncCart',
       });
       return data.cart
+    },
+    onSuccess: () => {
+      // Jangan berikan invalidate karena rapid sync to server
+      // setiap perubahan pada cart list
     }
   })
 

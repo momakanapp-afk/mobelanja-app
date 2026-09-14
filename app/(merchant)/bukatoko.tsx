@@ -65,7 +65,7 @@ const screenBukaToko = () => {
         compress: 0.8,
       }); 
       // UPLOAD
-      const uploadRes = await uploadToCloudinary(ImgResized.uri);
+      const uploadRes = await uploadToCloudinary(ImgResized.uri,'profile');
       if (uploadRes?.secure_url!==undefined) {
         urlUploaded.current = uploadRes.secure_url;
       }

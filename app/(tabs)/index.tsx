@@ -1,5 +1,6 @@
 import ProductsGrid from '@/components/ProductsGrid';
 import SafeScreen from '@/components/SafeScreen';
+import useCart from '@/hooks/useCart';
 import useDebounce from '@/hooks/useDebounce';
 import useProducts from '@/hooks/useProducts';
 import { useApi } from '@/lib/api';
@@ -11,7 +12,7 @@ import {
   StyleSheet, Text,
   TextInput, TouchableOpacity, View
 } from 'react-native';
-import { ToastContainer } from 'rn-toastify';
+import useToast, { ToastContainer } from 'rn-toastify';
 
 
   interface categories {
@@ -51,10 +52,10 @@ const MarketScreen = () =>
 
   // Init all product
     useEffect (() => {
-      if (!isLoading) {
+      if (listproduk.length > 0) {
         setDisplayProd(listproduk);
       }
-    },[isLoading])
+    },[listproduk])
 
   // Filter first, lanjut ke backend jika filter kosong
   useEffect (() => {
@@ -126,6 +127,31 @@ const MarketScreen = () =>
     setSearchQuery('');
   }
 
+  // ADD TO CART HANDLE
+  const toast = useToast();
+  const masuKeranjang = (barang:string) => {
+    toast.success('Telah ditambahkan ke keranjang belanja', {
+      title: barang,
+      duration: 3500,
+    });
+  };
+  const { isAddingToCart, addToCart } = useCart();
+  const handleAddToCart = (productId: string, productName: string) => {
+    addToCart(
+      { productId },
+      {
+        onSuccess: () =>  masuKeranjang(productName),
+        onError: (error: any) => {
+          toast.error("Terjadi error saat menambahkan barang", {
+            title: "Error",
+            duration: 3500,
+          });
+        },
+      }
+    );
+  };
+
+
   return (
     <SafeScreen>
       {/* HEADER */}
@@ -165,6 +191,8 @@ const MarketScreen = () =>
         isLoading={isLoading}
         isError = {isError} 
         header={renderHeader}
+        handleAddToCart={handleAddToCart}
+        isAddingToCart={isAddingToCart}
       />
 
       <ToastContainer maxVisible={3} />

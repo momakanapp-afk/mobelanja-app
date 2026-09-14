@@ -1,6 +1,7 @@
 import { useApi } from "@/lib/api";
 import { M_Produk } from "@/types";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRef } from "react";
 import useToast from "rn-toastify";
 
 
@@ -19,9 +20,61 @@ export const useMerchantProducts = () =>
       return data.mdata;
     },
   });
+
+  const prosesHapusProd = useRef("");
+  const hapusProdMutation = useMutation({
+    mutationFn: async ({prodId}:{prodId:string}) => {
+      prosesHapusProd.current = prodId;
+      const { data } = await api.post<{ isSuccess: boolean }>(
+        "/users/merchant_products.php", {
+        'id':  prodId,
+        'act': 'delete'
+      });
+      return data;
+    },
+    onSuccess: () => {
+      prosesHapusProd.current = '';
+      (async()=>{
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["merchantProducts"] }),
+          queryClient.invalidateQueries({ queryKey: ["products"] }),
+        ])
+      })()
+    }
+  }); // end hapusProdMutation
+
+  // SIMPAN dan UPDATE data product
+  const addUpdateProduct = useMutation({
+    mutationFn: async (
+      {idToko,dataprod,imgUploaded}:
+      {idToko:string,dataprod:M_Produk,imgUploaded:string[]}) => {
+      const { data } = await api.post<{ isSuccess: boolean }>(
+        "/users/merchant_products.php", {
+        id: dataprod._id,
+        id_toko: idToko,
+        act: 'saveData',
+        data: dataprod,
+        imgUpl: imgUploaded,
+      });
+      return data;
+    },
+    onSuccess: () => {
+      (async()=>{
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["merchantProducts"] }),
+          queryClient.invalidateQueries({ queryKey: ["products"] }),
+        ])
+      })()
+    }
+  }); // end hapusProdMutation
+  
   
   return {
     MProducts: medata,
-    waitData: isLoading
+    waitData: isLoading,
+    hapusProduk : hapusProdMutation.mutate,
+    tungguHapus : prosesHapusProd.current,
+    addUpdateProduk: addUpdateProduct.mutate,
+    tungguAddUpdate: addUpdateProduct.isPending,
   }
 }

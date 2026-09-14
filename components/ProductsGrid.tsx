@@ -1,52 +1,27 @@
-import useCart from "@/hooks/useCart";
 import { Product } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   Text,
   TouchableOpacity,
   View
 } from "react-native";
-import useToast from 'rn-toastify';
-
-const toast = useToast();
-const masuKeranjang = (barang:string) => {
-  toast.success('Telah ditambahkan ke keranjang belanja', {
-    title: barang,
-    duration: 3500,
-  });
-};
-
 
 interface ProductsGridProps {
   isLoading: boolean;
   isError: boolean;
   products: Product[];
+  isAddingToCart: string;
+  handleAddToCart: (prodId:string,prodName:string)=>void;
   header: () => React.ReactElement;
 }
 
-
-const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProps) => 
+const ProductsGrid = ({ products, isLoading, isError, header, 
+  isAddingToCart,handleAddToCart,
+}: ProductsGridProps) => 
 {
-  const { isAddingToCart, addToCart } = useCart();
-
-  const handleAddToCart = (productId: string, productName: string) => {
-    addToCart(
-      { productId },
-      {
-        onSuccess: () =>  masuKeranjang(productName),
-        onError: (error: any) => {
-          toast.error("Terjadi error saat menambahkan barang", {
-            title: "Error",
-            duration: 3500,
-          });
-        },
-      }
-    );
-  };
-
   const renderProduct = ({ item: product }: { item: Product }) => {
     const isLoadingCart = isAddingToCart === product._id;
     return  (
@@ -56,20 +31,24 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
         activeOpacity={0.5}
         // onPress={() => router.push(`/product/${product._id}`)}
       >
+        {/* GAMBAR PRODUK */}
         <View className="relative">
           <Image
-            source={{ uri: product.images[0] }}
-            className="w-full h-40 bg-background-lighter"
-            resizeMode="cover"
+            source={product.images[0]}
+            className="bg-background-lighter"
+            transition={200}
+            style={{height:140,width:"auto"}}
           />
         </View>
 
         <View className="p-3">
           <Text className="text-text-secondary text-xs mb-1">{product.category}</Text>
-          <Text className="text-text-primary font-bold text-sm mb-2" numberOfLines={2}>
+          {/* NAMA PRODUK */}
+          <Text className="text-text-primary text-base mb-2" numberOfLines={2}>
             {product.name}
           </Text>
 
+          {/* REVIEW STARS */}
           <View className="flex-row items-center mb-2">
             <Ionicons name="star" size={12} color="#FFC107" />
             <Text className="text-text-primary text-xs font-semibold ml-1">
@@ -78,11 +57,13 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
             <Text className="text-text-secondary text-xs ml-2">({product.totalReviews})</Text>
           </View>
 
+          {/* HARGA PRODUK */}
           <View className="flex-row items-center justify-between">
-            <Text className="text-text-primary font-bold text-lg">{product.price}</Text>
+            <Text className="text-text-primary text-lg">{product.price}</Text>
 
+            {/* TOMBOL ADD TO CART */}
             <TouchableOpacity
-              className="bg-primary ml-2 rounded-full w-[60px] h-[38px] items-center justify-center"
+              className="bg-primary ml-2 rounded-full w-[50px] h-[38px] items-center justify-center"
               activeOpacity={0.7}
               onPress= {() => handleAddToCart(product._id, product.name)}
               disabled={isLoadingCart}

@@ -1,11 +1,16 @@
 import { MyToast } from '@/components/MyToast';
+import { useCloudinaryUpload } from '@/hooks/useCloudinary';
 import { useImageProcess } from '@/hooks/useImageProcess';
 import useProfileImage from '@/hooks/useProfileImage';
+import { sleepTimeout } from '@/lib/utils';
 import { M_Produk, tipeListImg } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from "expo-image";
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator, KeyboardAvoidingView, Modal, Platform,
+  Pressable, ScrollView, Text, TextInput, TouchableOpacity, useWindowDimensions, View
+} from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import useToast, { ToastContainer } from 'rn-toastify';
 
@@ -18,22 +23,27 @@ export interface PropInputProdModal {
   hapusGambarList: (idImg:string)=>void;
   visible: boolean;
   onClose: ()=>void;
-  onSave: () => void;
   stateDspPrice: string;
   setDisplayNom: (text:string)=>void
+  onFormSave: (imgUploaded:string[])=>void;
+  waitFormSave: boolean;
 }
 
+// +++++++ MAIN EXPORT +++++++ //
 const InputProductModal = (
-  {FormProduct,ListImg,visible,onClose,onSave,onFormChange,setDisplayNom,
-    addListImg,stateDspPrice,hapusGambarList}
-  :PropInputProdModal
+  {FormProduct,ListImg,visible,onClose,onFormChange,setDisplayNom,
+    addListImg,stateDspPrice,hapusGambarList,onFormSave,waitFormSave
+  }:PropInputProdModal
 ) => {
   const [mytoastMsg,setMytoastmsg] = useState('');
   const [mytoastVisible,setMytoastvisible] = useState(false);
+  const { width: deviceWidth } = useWindowDimensions();
 
   const listImgEmpty = ()=>{
+    // Auto center live device width - padding right (pr-6)
+    const devWi = Number(deviceWidth.toFixed(0)) - 24;
     return (
-      <View className="py-10 items-center w-[340px] justify-center">
+      <View className={`py-10 items-center justify-center`} style={{width:devWi}}>
         <Ionicons color={"#B3B3B3"} size={50} name="image-outline" />
         <Text className="text-text-secondary w-[80%] leading-tight
         text-center text-base font-semibold mt-1">
@@ -80,8 +90,7 @@ const InputProductModal = (
       animated: true,
     });
   };
-  
-  const {processImage,isResizing} = useImageProcess();
+  const {processImage} = useImageProcess();
   const {imagePicked,takePhoto,pickImageFromGallery,resetImagePicked} = useProfileImage();
   const handleImagePick = (mode:'camera'|'galeri')=> {
     // Cek jumlah MAX Sebelum eksekusi picker
@@ -103,21 +112,89 @@ const InputProductModal = (
   // HANDLE IMAGE PICKED
   useEffect(()=>{
     if (imagePicked===null) return;
-    // Langsung resize (IIFE)
+    // Jeda resize 1 detik agar toast terlihat
     setMytoastvisible(true);
     setMytoastmsg('Memproses ukuran gambar...');
-    // Pakai timeout ketimbang IIFE
-    setTimeout( async () => {
+  
+    // IIFE Async
+    (async () => {
+      await sleepTimeout(1000); // jeda 1 detik
       const ImgResized = await processImage(imagePicked, {
         maxDimension: 1280, compress: 0.8 }); 
       addImageToList(ImgResized.uri);
       resetImagePicked();
       setMytoastmsg('Gambar telah ditambahkan');
-      setTimeout(function(){setMytoastvisible(false)},1500);
+      setTimeout(function(){setMytoastvisible(false)},1000);
       scrollToIndex(ListImg.length-1);
-    },1000);
+    })();
   },[imagePicked])
 
+  const { uploadToCloudinary, progress, statusText, isUploading} = useCloudinaryUpload();
+  
+  const imgToUpload = useRef<string[]>([]);
+  const imgUploaded = useRef<string[]>([]);
+
+  // ++++++ SAVE ITEM
+  const handleSaveItem = async () => 
+  {
+    // Validasi jika image masih kosong
+    if (ListImg.length===0) {
+      toast.error('Upload gambar minimal 1 untuk thumbnail', {
+        title: 'Belum ada Foto',
+        duration: 3500,
+      });
+      return;
+    }
+    // Nama dan harga kosong
+    if (FormProduct.name==='' || FormProduct.price===0) {
+      toast.error('Nama dan Harga tidak boleh kosong', {
+        title: 'Nama/Harga harus diisi',
+        duration: 3500,
+      });
+      return;
+    }
+    // Kosongkan filter upload
+    imgUploaded.current = [];
+    const imagesOri = FormProduct.images;
+    // Cek image yang belum diupload dari ListImg
+    ListImg.forEach((item,idx)=>{
+      if (imagesOri.includes(item.imgurl)===false) {
+        imgToUpload.current.push(item.imgurl);
+      }
+    })
+    // Upload gambar yang terjaring 
+    if (imgToUpload.current.length > 0) {
+      setMytoastvisible(true);
+      setMytoastmsg("Proses menyimpan");
+      sleepTimeout(1000); // jeda 1 detik
+      
+      // Upload batch
+      await uploadBatch(imgToUpload.current);
+
+      // Gabungkan hasil upload dan image dari database
+      let imagesToSend = [...FormProduct.images,...imgUploaded.current];
+      // Patch gabungan image ke Form untuk dikirim
+      onFormChange({...FormProduct,images: imagesToSend});
+      // Post data ke backend 
+      setMytoastmsg("Simpan data ke server");
+      sleepTimeout(500);
+      setMytoastvisible(false);
+      onFormSave(imgUploaded.current);
+    } 
+  }
+
+  async function uploadBatch(list:string[]) {
+    const totalGambar = list.length;
+    let idx = 0;
+    for (const item of list) {
+      idx++;
+      setMytoastmsg(`Upload ${idx} dari ${totalGambar} gambar`);
+      sleepTimeout(500);
+      const respon = await uploadToCloudinary(item,'produk');
+      // Tampung hasil upload 
+      if (respon!==null) imgUploaded.current.push(respon.secure_url);
+    }
+  }
 
   return (
   <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
@@ -254,10 +331,10 @@ const InputProductModal = (
           <TouchableOpacity
             className="bg-primary rounded-2xl py-5 items-center"
             activeOpacity={0.8}
-            onPress={onSave}
-            disabled={mytoastVisible}
+            onPress={handleSaveItem}
+            disabled={waitFormSave}
           >
-            { mytoastVisible ? (
+            { waitFormSave ? (
               <View className='flex-row'>
                 <ActivityIndicator size="small" color="#121212" />
                 <Text className="text-background font-bold text-lg ml-4">

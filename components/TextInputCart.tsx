@@ -94,7 +94,7 @@ const TextInputCart = ({defVal,prodId,namaBrg,dynEvent}:tipeTIC) => {
       className="border py-0 w-[60px] h-[42px] border-gray-300 rounded-lg p-3 text-lg text-white"
       keyboardType="number-pad" 
       value={textVal}
-      onChangeText={(teks)=>{ubahQty(teks)}}
+      onChangeText={ubahQty}
     />
 
     <TouchableOpacity

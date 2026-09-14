@@ -7,45 +7,40 @@ import { formatRupiah } from "@/lib/utils";
 import { CartItem } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { ToastContainer } from "rn-toastify";
 
+// +++++++++ MAIN SCREEN EXPORT
 const CartScreen = () => {
+  
   const api = useApi();
   const {cart,isLoading,isError,isAddingToCart,syncCart,inSyncProcess
   } = useCart()
 
+  const[CartItems,setCartItems] = useState<CartItem[]>();
+
+
   // const { addresses } = useAddresses();
   // const [addressModalVisible, setAddressModalVisible] = useState(false);
 
-  // render ulang saat server data berubah (invalidate)
+  // render ulang saat invalidate addToCart terpicu
   useEffect(()=>{
     setCartItems(cart?.items)
   },[cart])
 
-  const[CartItems,setCartItems] = useState(cart?.items)
-
-  // Auto sync to backend
-  const isInitialMount = useRef(true);
-  useEffect(()=>{
-    // Hindari sinkronisasi saat komponen baru pertama kali dimuat
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-    if (CartItems===undefined) return
-    syncCart(CartItems);
-    
-  },[CartItems])
-
 
   // Operasi SUM perkalian antar properti (price * qty)
   // acc: accumulator
-  // Jangan menggunakan useState() untuk total !
   const total = (CartItems ?? []).reduce(
     (acc, item) => acc + item.product.price * item.quantity, 0
   );
+
+  // Gunakan pergerakan total untuk sync server 
+  useEffect(()=>{
+    if (CartItems) syncCart(CartItems)
+  },[total]);
+
 
   const jmlTotal = CartItems?.length ?? 0
 
@@ -69,10 +64,7 @@ const CartScreen = () => {
       (prev ?? []).map((item) => {
         if (item.product._id === productId) {
           // Salin item lama, ubah dengan new value
-          updatedItem = {
-            ...item,
-            quantity: quantity,
-          };
+          updatedItem = {...item, quantity: quantity};
           return updatedItem;
         }
         return item; // Item lain tetap seperti semula
@@ -88,7 +80,7 @@ const CartScreen = () => {
  
   if (isLoading) return <LoadingUI />;
   if (isError) return <ErrorUI />;
-  if (CartItems===undefined) return  <EmptyUI />;
+  if (CartItems===undefined) return <EmptyUI />;
   if (CartItems.length === 0) return <EmptyUI />;
 
   return (
