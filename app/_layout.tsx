@@ -67,10 +67,6 @@ function InitialLayout() {
   // Panggil fungsi pengarah/proteksi rute
   useProtectedRoute();
 
-  if (!isLoaded) {
-    return null;
-  }
-
   return ( 
     <GestureHandlerRootView style={{flex:1}}>
       <Stack screenOptions={{ 

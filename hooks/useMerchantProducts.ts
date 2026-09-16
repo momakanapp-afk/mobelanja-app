@@ -21,6 +21,7 @@ export const useMerchantProducts = () =>
     },
   });
 
+  // ++ HAPUS ITEM PRODUK
   const prosesHapusProd = useRef("");
   const hapusProdMutation = useMutation({
     mutationFn: async ({prodId}:{prodId:string}) => {
@@ -43,11 +44,17 @@ export const useMerchantProducts = () =>
     }
   }); // end hapusProdMutation
 
+  interface tipeParAddUpd {
+    idToko:string;
+    dataprod:M_Produk;
+    imgUploaded:string[];
+    imgDeleted:string[];
+  }
+  
   // SIMPAN dan UPDATE data product
   const addUpdateProduct = useMutation({
     mutationFn: async (
-      {idToko,dataprod,imgUploaded}:
-      {idToko:string,dataprod:M_Produk,imgUploaded:string[]}) => {
+      {idToko,dataprod,imgUploaded,imgDeleted}:tipeParAddUpd) => {
       const { data } = await api.post<{ isSuccess: boolean }>(
         "/users/merchant_products.php", {
         id: dataprod._id,
@@ -55,6 +62,7 @@ export const useMerchantProducts = () =>
         act: 'saveData',
         data: dataprod,
         imgUpl: imgUploaded,
+        imgDeleted: imgDeleted,
       });
       return data;
     },

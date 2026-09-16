@@ -162,25 +162,23 @@ const InputProductModal = (
         imgToUpload.current.push(item.imgurl);
       }
     })
+    // Toast Save
+    setMytoastvisible(true);
+    setMytoastmsg("Proses menyimpan");
+    sleepTimeout(1000); // jeda 1 detik
+
     // Upload gambar yang terjaring 
     if (imgToUpload.current.length > 0) {
-      setMytoastvisible(true);
-      setMytoastmsg("Proses menyimpan");
-      sleepTimeout(1000); // jeda 1 detik
-      
-      // Upload batch
-      await uploadBatch(imgToUpload.current);
 
-      // Gabungkan hasil upload dan image dari database
-      let imagesToSend = [...FormProduct.images,...imgUploaded.current];
-      // Patch gabungan image ke Form untuk dikirim
-      onFormChange({...FormProduct,images: imagesToSend});
-      // Post data ke backend 
-      setMytoastmsg("Simpan data ke server");
-      sleepTimeout(500);
-      setMytoastvisible(false);
-      onFormSave(imgUploaded.current);
+      // Upload batch (hasil upload disimpan ke imgUploaded)
+      await uploadBatch(imgToUpload.current);
     } 
+
+    // Post data ke backend 
+    setMytoastmsg("Mengirim data ke server");
+    sleepTimeout(500);
+    setMytoastvisible(false);
+    onFormSave(imgUploaded.current);
   }
 
   async function uploadBatch(list:string[]) {
@@ -297,7 +295,8 @@ const InputProductModal = (
               Deskripsi Produk
             </Text>
             <TextInput
-              className="bg-surface text-text-primary h-[200px] p-4 rounded-2xl text-base"
+              className="bg-surface text-text-primary h-[200px] p-4 
+              rounded-2xl text-lg"
               placeholder="Deskripsikan produk anda"
               placeholderTextColor="#666"
               value={FormProduct.description}

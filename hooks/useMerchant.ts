@@ -33,7 +33,12 @@ export const useMerchant = () =>
     },
     onSuccess: (data) => {
       if (data.isSuccess) {
-        queryClient.invalidateQueries({ queryKey: ["merchantData"] });
+        (async()=>{
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["merchantData"] }),
+          queryClient.invalidateQueries({ queryKey: ["products"] }),
+        ])
+      })()
       }
     }
   })

@@ -14,8 +14,7 @@ const ShopMenuAdmin = ({datatoko,isLoading}:PropsShopMA) => {
   if (isLoading) {
     return (<View></View>)
   }
-
-  if (datatoko===null) {
+  if (datatoko?.name===undefined) {
     return (<View></View>)
   }
   

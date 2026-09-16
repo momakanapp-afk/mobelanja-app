@@ -1,5 +1,7 @@
 export interface Product {
   _id: string;
+  toko_id: string;
+  toko_nama: string;
   name: string;
   description: string;
   price: number;
@@ -8,6 +10,13 @@ export interface Product {
   images: string[];
   averageRating: number;
   totalReviews: number;
+}
+export interface LsToko {
+  _id: string;
+  name: string;
+  image: string;
+  kotakab: string;
+  desc: string;
 }
 export interface M_Produk {
   _id: string;

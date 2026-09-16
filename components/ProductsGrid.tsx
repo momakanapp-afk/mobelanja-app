@@ -1,3 +1,4 @@
+import { formatRupiah } from "@/lib/utils";
 import { Product } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
@@ -42,7 +43,12 @@ const ProductsGrid = ({ products, isLoading, isError, header,
         </View>
 
         <View className="p-3">
-          <Text className="text-text-secondary text-xs mb-1">{product.category}</Text>
+          <View className="flex-row">
+            <Ionicons name="storefront" size={14} color='#E3D3CC' />
+            <Text className="text-text-secondary text-xs mb-1 ml-2">
+              {product.toko_nama}
+            </Text>
+          </View>
           {/* NAMA PRODUK */}
           <Text className="text-text-primary text-base mb-2" numberOfLines={2}>
             {product.name}
@@ -51,7 +57,7 @@ const ProductsGrid = ({ products, isLoading, isError, header,
           {/* REVIEW STARS */}
           <View className="flex-row items-center mb-2">
             <Ionicons name="star" size={12} color="#FFC107" />
-            <Text className="text-text-primary text-xs font-semibold ml-1">
+            <Text className="text-text-primary text-xs font-semibold ml-2">
               {product.averageRating}
             </Text>
             <Text className="text-text-secondary text-xs ml-2">({product.totalReviews})</Text>
@@ -59,11 +65,13 @@ const ProductsGrid = ({ products, isLoading, isError, header,
 
           {/* HARGA PRODUK */}
           <View className="flex-row items-center justify-between">
-            <Text className="text-text-primary text-lg">{product.price}</Text>
+            <Text className="text-text-primary text-lg">
+              {formatRupiah(product.price)}
+            </Text>
 
             {/* TOMBOL ADD TO CART */}
             <TouchableOpacity
-              className="bg-primary ml-2 rounded-full w-[50px] h-[38px] items-center justify-center"
+              className="bg-primary ml-2 rounded-2xl w-[50px] h-[38px] items-center justify-center"
               activeOpacity={0.7}
               onPress= {() => handleAddToCart(product._id, product.name)}
               disabled={isLoadingCart}
@@ -119,8 +127,10 @@ function NoProductsFound() {
   return (
     <View className="py-20 items-center justify-center">
       <Ionicons name="search-outline" size={60} color={"#666"} />
-      <Text className="text-text-primary text-lg font-semibold mt-4">Tidak ada barang untuk ditampilkan</Text>
-      <Text className="text-text-secondary text-base mt-2">Coba manfaatkan pencarian</Text>
+      <Text className="text-text-primary text-lg font-semibold mt-4">
+        Tidak ada barang untuk ditampilkan
+      </Text>
+      <Text className="text-text-secondary text-base mt-2">silahkan coba kembali</Text>
     </View>
   );
 }

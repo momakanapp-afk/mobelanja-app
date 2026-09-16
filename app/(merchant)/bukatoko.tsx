@@ -18,10 +18,10 @@ const screenBukaToko = () => {
   // Upload Hooks 
   const { uploadToCloudinary, statusText, isUploading} =
     useCloudinaryUpload();
-  const {merchantData,saveMerchant} = useMerchant();
+  const {merchantData,saveMerchant,isSaveMerchant} = useMerchant();
   const [mytoastMsg,setMytoastmsg] = useState('');
   const [mytoastVisible,setMytoastvisible] = useState(false);
-  const {imagePicked,takePhoto,pickImageFromGallery} = 
+  const {imagePicked,takePhoto,pickImageFromGallery,resetImagePicked} = 
     useProfileImage();
   const {processImage} = useImageProcess();
   const [tokoForm,setTokoForm] = 
@@ -36,7 +36,7 @@ const screenBukaToko = () => {
   })
   const toast = useToast();
   const urlUploaded = useRef('');
-  const [logoToko, setLogoToko] = useState('');
+  const [logoToko, setLogoToko] = useState<string|null>(null);
 
   // HANDLE SAVE DATA TO SERVER
   const handleSave = async ()=>{
@@ -57,7 +57,7 @@ const screenBukaToko = () => {
     setMytoastvisible(true);
 
     // Cek dalam mode edit gambar direplace / tidak
-    if (imagePicked!==null) {
+    if (imagePicked && logoToko) {
       setMytoastmsg('Upload gambar');
       // Resize Dimension
       const ImgResized = await processImage(logoToko, {
@@ -78,7 +78,6 @@ const screenBukaToko = () => {
         return;
       }
     }
-
     // SAVE TO BACKEND
     const actSave = merchantData?.name===undefined ? 'newForm' : 'editForm';
     setMytoastmsg('Menyimpan data di server');
@@ -91,7 +90,8 @@ const screenBukaToko = () => {
     {
       onSuccess: ()=>{
         setMytoastmsg('Data berhasil disimpan');
-        setTimeout(()=>setMytoastvisible(false),1500);
+        setTimeout(()=>setMytoastvisible(false),1000);
+        router.back();
       }
     });
   }
@@ -158,7 +158,7 @@ const screenBukaToko = () => {
           <Ionicons name="arrow-back" size={26} color="#ff7f23" />
         </TouchableOpacity>
         <Text className="text-primary text-xl font-bold">
-          {merchantData===null ? "Buka Toko" : "Update Data Toko"}
+          {merchantData?.name===undefined ? "Buka Toko" : "Update Data Toko"}
         </Text>
       </View>
 
@@ -171,14 +171,15 @@ const screenBukaToko = () => {
         <View className='w-1/2 items-center py-8'>
           <Text className='text-text-secondary mb-2'>Pilih Logo/Gambar Toko</Text>
           {/* +++ IMAGE INIT & IMAGE PICKED */}
-          {logoToko==='' ?
-            (<Ionicons name='image-outline' size={100} color="#B3B3B3" />)
-          :
+          {logoToko ?
             (<Image
                 source={logoToko}
-                style={{ width: 150, height: 150, borderRadius: 75 }}
+                style={{ width: 150, height: 150, borderRadius: 75, 
+                  backgroundColor: '#fff' }}
                 transition={200}
-            />)}
+            />) : 
+            (<Ionicons name='image-outline' size={100} color="#B3B3B3" />)
+          }
           <Text className='text-text-secondary text-center mb-3'>
             Sebaiknya gunakan gambar dengan rasio 1:1
           </Text>
@@ -327,9 +328,9 @@ const screenBukaToko = () => {
           className="bg-primary rounded-2xl py-5 mt-7 items-center"
           activeOpacity={0.8}
           onPress={handleSave}
-          disabled={mytoastVisible}
+          disabled={isSaveMerchant}
         >
-          {mytoastVisible ? (
+          {isSaveMerchant ? (
             <View className='flex-row'>
               <ActivityIndicator size="small" color="#121212" />
               <Text className="text-background font-bold text-lg ml-3">

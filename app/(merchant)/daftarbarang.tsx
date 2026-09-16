@@ -7,7 +7,7 @@ import { M_Produk, tipeListImg } from '@/types';
 import { Entypo } from '@expo/vector-icons';
 import { Image } from "expo-image";
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import useToast, { ToastContainer } from 'rn-toastify';
@@ -48,8 +48,13 @@ const ScreenDaftarBarang = () => {
   const handleInsertDisplay = (text:string) => {
     setDisplayNom(text);
   }
+  let listImgDeleted = useRef<string[]>([]);
   const handleHapusGambar = (idImg:string) => {
+    let itemDihapus = listImgProd.filter( (item) => item.id === idImg );
     setListImgProd((prev) => prev.filter((item) => item.id !== idImg));
+    // Tampung gambar dihapus 
+    // pertahankan originalitas record images di Form
+    listImgDeleted.current.push(itemDihapus[0].imgurl);
   }
   const handleHapusList = (productId: string, productName: string) => {
     Alert.alert("Hapus", `Hapus ${productName} dari daftar ?`, [
@@ -87,12 +92,13 @@ const ScreenDaftarBarang = () => {
         [...prev,{id:'img-'+generateId(),imgurl:item}]
       ));
     })
+    listImgDeleted.current = [];
     setDisplayNom(formatRupiah(item.price).replace('Rp.',''));
     setModalVisible(true);
   }
 
   const toast = useToast();
-  
+   
   // SAVE FORM MODAL 
   const handleSaveForm = (imgUpl:string[]) => { 
     // Jika id toko tidak ditemukan, STOP
@@ -101,13 +107,14 @@ const ScreenDaftarBarang = () => {
     addUpdateProduk({
       dataprod:formBarang,
       idToko:merchantData._id,
-      imgUploaded: imgUpl
+      imgUploaded: imgUpl,
+      imgDeleted: listImgDeleted.current,
     },
       {
         onSuccess: ()=>{
           setModalVisible(false);
-          toast.success('Item baru telah ditambahkan', {
-            title: 'Item Baru Disimpan',
+          toast.success('Berhasil menyimpan data', {
+            title: 'Item Disimpan',
             duration: 3500,
           });
         }
