@@ -1,59 +1,28 @@
-import useCart from "@/hooks/useCart";
+import { formatRupiah } from "@/lib/utils";
 import { Product } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from "react-native";
-import useToast from 'rn-toastify';
-
-const styles = StyleSheet.create({
-  flatListContent: {
-    paddingBottom: 250, 
-  },
-});
-
-const toast = useToast();
-const masuKeranjang = (barang:string) => {
-  toast.success('Telah ditambahkan ke keranjang belanja', {
-    title: barang,
-    duration: 3500,
-  });
-};
-
 
 interface ProductsGridProps {
   isLoading: boolean;
   isError: boolean;
   products: Product[];
+  isAddingToCart: string;
+  handleAddToCart: (prodId:string,prodName:string)=>void;
   header: () => React.ReactElement;
 }
 
-
-const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProps) => 
+const ProductsGrid = ({ products, isLoading, isError, header, 
+  isAddingToCart,handleAddToCart,
+}: ProductsGridProps) => 
 {
-  const { isAddingToCart, addToCart } = useCart();
-
-  const handleAddToCart = (productId: string, productName: string) => {
-    addToCart(
-      { productId },
-      {
-        onSuccess: () =>  masuKeranjang(productName),
-        onError: (error: any) => {
-          toast.error("Terjadi error saat menambahkan barang", {
-            title: "Error",
-            duration: 3500,
-          });
-        },
-      }
-    );
-  };
-
   const renderProduct = ({ item: product }: { item: Product }) => {
     const isLoadingCart = isAddingToCart === product._id;
     return  (
@@ -63,41 +32,54 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
         activeOpacity={0.5}
         // onPress={() => router.push(`/product/${product._id}`)}
       >
+        {/* GAMBAR PRODUK */}
         <View className="relative">
           <Image
-            source={{ uri: product.images[0] }}
-            className="w-full h-44 bg-background-lighter"
-            resizeMode="cover"
+            source={product.images[0]}
+            className="bg-background-lighter"
+            transition={200}
+            style={{height:140,width:"auto"}}
           />
         </View>
 
         <View className="p-3">
-          <Text className="text-text-secondary text-xs mb-1">{product.category}</Text>
-          <Text className="text-text-primary font-bold text-sm mb-2" numberOfLines={2}>
+          <View className="flex-row">
+            <Ionicons name="storefront" size={14} color='#E3D3CC' />
+            <Text className="text-text-secondary text-xs mb-1 ml-2">
+              {product.toko_nama}
+            </Text>
+          </View>
+          {/* NAMA PRODUK */}
+          <Text className="text-text-primary text-base mb-2" numberOfLines={2}>
             {product.name}
           </Text>
 
+          {/* REVIEW STARS */}
           <View className="flex-row items-center mb-2">
             <Ionicons name="star" size={12} color="#FFC107" />
-            <Text className="text-text-primary text-xs font-semibold ml-1">
+            <Text className="text-text-primary text-xs font-semibold ml-2">
               {product.averageRating}
             </Text>
             <Text className="text-text-secondary text-xs ml-2">({product.totalReviews})</Text>
           </View>
 
+          {/* HARGA PRODUK */}
           <View className="flex-row items-center justify-between">
-            <Text className="text-primary font-bold text-lg">{product.price}</Text>
+            <Text className="text-text-primary text-lg">
+              {formatRupiah(product.price)}
+            </Text>
 
+            {/* TOMBOL ADD TO CART */}
             <TouchableOpacity
-              className="bg-primary rounded-2xl w-[60px] h-[40px] items-center justify-center"
+              className="bg-primary ml-2 rounded-2xl w-[50px] h-[38px] items-center justify-center"
               activeOpacity={0.7}
               onPress= {() => handleAddToCart(product._id, product.name)}
               disabled={isLoadingCart}
             >
             {isLoadingCart ? (
-                <ActivityIndicator size="small" color="#a5fed4" />
+                <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Ionicons name="cart" size={30} color="#a5fed4" />
+                <Ionicons name="cart" size={30} color="#ffe4d0" />
               )}
             </TouchableOpacity>
           </View>
@@ -135,7 +117,8 @@ const ProductsGrid = ({ products, isLoading, isError, header }: ProductsGridProp
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={NoProductsFound}
       ListHeaderComponent = {header}
-      contentContainerStyle = {styles.flatListContent}
+      contentContainerStyle = {{paddingBottom:250}}
+      contentContainerClassName="px-2"
     />
   );
 };
@@ -144,8 +127,10 @@ function NoProductsFound() {
   return (
     <View className="py-20 items-center justify-center">
       <Ionicons name="search-outline" size={60} color={"#666"} />
-      <Text className="text-text-primary text-xl font-semibold mt-4">Hasil Tidak ditemukan</Text>
-      <Text className="text-text-secondary text-base mt-2">Coba dengan pencarian lain</Text>
+      <Text className="text-text-primary text-lg font-semibold mt-4">
+        Tidak ada barang untuk ditampilkan
+      </Text>
+      <Text className="text-text-secondary text-base mt-2">silahkan coba kembali</Text>
     </View>
   );
 }

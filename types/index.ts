@@ -1,5 +1,7 @@
 export interface Product {
   _id: string;
+  toko_id: string;
+  toko_nama: string;
   name: string;
   description: string;
   price: number;
@@ -9,17 +11,32 @@ export interface Product {
   averageRating: number;
   totalReviews: number;
 }
-
-export interface User {
+export interface LsToko {
   _id: string;
-  clerkId: string;
+  name: string;
+  image: string;
+  kotakab: string;
+  desc: string;
+}
+export interface M_Produk {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  images: string[];
+}
+export interface tipeListImg {
+  id:string;
+  imgurl:string;
+}
+export interface User {
   email: string;
   name: string;
+  facebook: string;
+  kontak: string;
+  kotakab: string;
   imageUrl: string;
-  addresses: Address[];
-  wishlist: string[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface Address {
@@ -31,6 +48,7 @@ export interface Address {
   state: string;
   zipCode: string;
   phoneNumber: string;
+  geolokasi: string;
   isDefault: boolean;
 }
 
@@ -94,3 +112,17 @@ export interface CartItem {
   };
   quantity: number;
 }
+
+export interface FormToko {
+  _id: string;
+  name: string;
+  desc: string;
+  kotakab: string;
+  alamat: string;
+  kodepos: string;
+  kontak: string;
+  geolokasi: string;
+  imageUrl: string;
+  waktu: string;
+}
+

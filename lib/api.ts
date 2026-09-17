@@ -5,6 +5,7 @@ import { useEffect } from "react";
 // Simulator hanya membaca IP PC dan tanpa https
 // const API_URL = "http://192.168.8.111:8114";
 const API_URL = "http://10.106.20.78:8114";
+// const API_URL = "https://mobelanja.metaklik.web.id";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -20,7 +21,7 @@ export const useApi = () => {
   useEffect(() => {
     // on every single req, we would like have an auth token so that our backend knows that we're authenticated
     const interceptor = api.interceptors.request.use(async (config) => {
-      const token = await getToken();
+      const token = await getToken({ template: 'Template-1' });
       if (token) {
         // we're including the auth token under the auth headers
         config.headers.Authorization = `Bearer ${token}`;

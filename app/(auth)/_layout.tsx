@@ -1,14 +1,14 @@
 
 import { useAuth } from "@clerk/expo";
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 
 export default function AuthRoutesLayout() {
 
   const { isSignedIn, isLoaded } = useAuth();
-  
-  if (isLoaded) {
-    if (!isSignedIn) {
-      return <Stack screenOptions={{ headerShown: false }} />;
-    }
+
+  if (isSignedIn) {
+    return <Redirect href={"/(tabs)"} />;
   }
+  
+  return <Stack screenOptions={{ headerShown: false }} />;
 }

@@ -1,65 +1,41 @@
 import ProductsGrid from '@/components/ProductsGrid';
 import SafeScreen from '@/components/SafeScreen';
+import useCart from '@/hooks/useCart';
 import useDebounce from '@/hooks/useDebounce';
 import useProducts from '@/hooks/useProducts';
 import { useApi } from '@/lib/api';
-import { Product } from '@/types';
+import { LsToko, Product } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
   FlatList, Image,
-  StyleSheet, Text,
+  Text,
   TextInput, TouchableOpacity, View
 } from 'react-native';
-import { ToastContainer } from 'rn-toastify';
+import useToast, { ToastContainer } from 'rn-toastify';
 
-
-  interface categories {
-    name: string;
-    image: number;
-  }
-
-  const CATEGORIES = [
-    { name: "Gadget", image: require("@/assets/images/electronics.png") },
-    { name: "Fashion", image: require("@/assets/images/fashion.png") },
-    { name: "Sports", image: require("@/assets/images/sports.png") },
-    { name: "Books", image: require("@/assets/images/books.png") },
-  ];
-
-  const styles = StyleSheet.create({
-    container: {
-      paddingTop: 2,
-      paddingBottom: 25,
-      marginLeft: 10
-    },
-    card: {
-      width:100,
-      height:100,
-      borderRadius:14
-    }
-  });
-
-const ShopScreen = () => 
+const MarketScreen = () => 
 {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [displayProd, setDisplayProd] = useState<Product[]>();
-  const { data: listproduk = [], isLoading, isError, error } = useProducts();
-
-  // Teknik debounce request search
-  const debouncedQuery = useDebounce(searchQuery, 700);
+  const { data: dataprod, isLoading, isError, error } = useProducts();
 
   // Init all product
-    useEffect (() => {
-      if (!isLoading) {
-        setDisplayProd(listproduk);
-      }
-    },[isLoading])
-
-  // Filter first, lanjut ke backend jika filter kosong
   useEffect (() => {
-    let filtered = listproduk;
+    if (dataprod?.plist) {
+      setDisplayProd(dataprod.plist);
+      setSelectedCategory("All");
+    }
+  },[dataprod])
 
+  // Teknik debounce request search
+  const debouncedQuery = useDebounce(searchQuery, 1000);
+
+ // Filter first, lanjut ke backend jika filter kosong
+  useEffect (() => {
+    if (dataprod?.plist===undefined) return;
+    let filtered = dataprod.plist;
     if (debouncedQuery.trim() !== '') 
     {
       // FILTER DULU (Manfaatkan cache)
@@ -69,13 +45,12 @@ const ShopScreen = () =>
       // Panggil server jika hasil filter kosong
       if (filtered.length===0) {
         searchFromBackend(debouncedQuery);
-        console.log("POST search:",debouncedQuery)
       }
       else {
         setDisplayProd(filtered);
       }
     }
-  }, [debouncedQuery])
+  }, [debouncedQuery]);
 
   const api = useApi(); 
   
@@ -91,62 +66,107 @@ const ShopScreen = () =>
   if (isError) {
     console.log(error);
   }
-
-  const renderItem = ({ item }:{item:categories}) => (
+  
+  // Parameter adalah masing2 item dalam array list {item}
+  const renderToko = ({item}:{item:LsToko}) => (
   <TouchableOpacity
-    key={item.name}
-    onPress={() => setSelectedCategory(item.name)}
-    className={`mr-4 rounded-2xl overflow-hidden items-center justify-center 
-      ${selectedCategory === item.name ? "bg-primary" : "bg-surface"}`}
-    style = {styles.card}
+    key={item._id}
+    onPress={() => setSelectedCategory(item._id)}
   >
-      <Image source={item.image} className="size-12 mb-2" resizeMode="cover" />
-      <Text className={`text-lg text-center leading-tight
-        ${selectedCategory === item.name ? "text-black font-bold" : "text-white font-normal"}`}
+    <View className={`mr-4 p-2 items-center rounded-xl justify-center border-2
+      ${selectedCategory===item._id ? "border-primary bg-primary/25" : 
+        "border-surface bg-surface"}`}
+    >
+      <Image source={{uri:item.image}} className="size-20 mb-1 rounded-full" resizeMode="cover" />
+      <Text className={`text-sm text-center leading-tight 
+       ${selectedCategory===item._id ? 'text-[#faa96f]' : 'text-text-primary' } `}
       > {item.name}
-      </Text>
-    </TouchableOpacity>
+      </Text> 
+    </View>
+  </TouchableOpacity> 
   );
 
   const renderHeader = () => (
-    <View className='flex-1'>
-        <View style={styles.container}>
-          <FlatList
-            data={CATEGORIES}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.name}
-            horizontal={true} 
-            showsHorizontalScrollIndicator={false}
-          />
-        </View>
+    <View className='flex-row'>
+      <TouchableOpacity 
+      className='items-center mr-3 mt-4 p-2'
+      onPress={() => setSelectedCategory('All')}
+      >
+        <Ionicons name='grid-outline' size={45} 
+        color={selectedCategory==='All' ? '#ff7f23' : '#E3D3CC'} />
+        <Text className={`${selectedCategory==='All' ? 
+          'text-primary' : 'text-text-primary'} text-sm mt-2`}>
+          Semua Toko
+        </Text>
+      </TouchableOpacity>
+      <View className='flex-1'>
+        <FlatList
+          data={dataprod?.tlist}
+          renderItem={renderToko}
+          keyExtractor={(item) => item._id}
+          horizontal={true} 
+          showsHorizontalScrollIndicator={false}
+          contentContainerClassName='mb-2'
+        />
       </View>
+    </View>
   );
 
   const clearText = () => {
     setSearchQuery('');
   }
 
+  // ADD TO CART HANDLE
+  const toast = useToast();
+  const masuKeranjang = (barang:string) => {
+    toast.success('Telah ditambahkan ke keranjang belanja', {
+      title: barang,
+      duration: 3500,
+    });
+  };
+  const { isAddingToCart, addToCart } = useCart();
+  const handleAddToCart = (productId: string, productName: string) => {
+    addToCart(
+      { productId },
+      {
+        onSuccess: () =>  masuKeranjang(productName),
+        onError: (error: any) => {
+          toast.error("Terjadi error saat menambahkan barang", {
+            title: "Error",
+            duration: 3500,
+          });
+        },
+      }
+    );
+  };
+
+
   return (
     <SafeScreen>
-
       {/* HEADER */}
       <View className="px-4 pt-2">
-        <View className="flex-row items-center justify-between mb-3">
+        <View className="flex-row justify-center">
+          <Image 
+            source={require("../../assets/images/ico_mo_oren.png")} 
+            className='size-11 mr-3' 
+            resizeMode="contain"
+          />
           <View>
-            <Text className="text-text-primary text-2xl font-bold tracking-tight">MoBelanja</Text>
+            <Text className="text-primary text-xl font-bold mt-2">Belanja</Text>
           </View>
-          <TouchableOpacity 
+          
+          {/* <TouchableOpacity 
             className="bg-surface p-2 rounded-full" activeOpacity={0.7}
             onPress={()=>{}}
           >
             <Ionicons name="add-outline" size={24} color={"#fff"} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>  
 
       {/* SEARCH BAR */}
       <View className="bg-surface mb-4 flex-row items-center mx-2 px-4 rounded-2xl">
-        <Ionicons color={"#fbd502"} size={22} name="search" />
+        <Ionicons color={"#ff7f23"} size={22} name="search" />
         <TextInput
           className="flex-1 ml-3 text-xl text-text-primary"
           placeholder="Ketik untuk mencari"
@@ -156,19 +176,19 @@ const ShopScreen = () =>
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={clearText} activeOpacity={0.7}>
-            <Ionicons name="close-circle" size={28} color="#fbd502" />
+            <Ionicons name="close-circle" size={28} color="#ff7f23" />
           </TouchableOpacity>
         )}
       </View>
 
-      <View>
-        <ProductsGrid 
-          products={displayProd ?? []}
-          isLoading={isLoading}
-          isError = {isError}
-          header={renderHeader}
-        />
-      </View>
+      <ProductsGrid 
+        products={displayProd ?? []}
+        isLoading={isLoading}
+        isError = {isError} 
+        header={renderHeader}
+        handleAddToCart={handleAddToCart}
+        isAddingToCart={isAddingToCart}
+      />
 
       <ToastContainer maxVisible={3} />
 
@@ -176,6 +196,6 @@ const ShopScreen = () =>
     </SafeScreen>
   );
 
-} // End ShopScreen
+} // End MarketScreen
 
-export default ShopScreen
+export default MarketScreen

@@ -40,7 +40,7 @@ export default function OrderSummary({ subtotal, shipping, tax, total }: OrderSu
           </View>
 
           <View className="flex-row justify-between items-center">
-            <Text className="text-text-secondary text-base">Pajak</Text>
+            <Text className="text-text-secondary text-base">Biaya admin</Text>
             <Text className="text-text-primary font-semibold text-base">
               {tax}
             </Text>

@@ -9,13 +9,15 @@ function useSocialAuth() {
   const handleSocialAuth = async (strategy: "oauth_google"|"oauth_facebook") => {
     setLoadingStrategy(strategy);
     try {
-      const {createdSessionId, setActive} = await startSSOFlow({strategy});
+      const {createdSessionId, setActive} = await startSSOFlow({
+        strategy
+      });
       if (createdSessionId && setActive) {
         await setActive({session: createdSessionId});
       }
     } catch (error) {
       console.log("Eror saat login",error);
-      Alert.alert("Error","Gagal saat memproses login");
+      Alert.alert("Error","Gagal saat memproses login "+error);
     } finally {
       setLoadingStrategy(null);
     }

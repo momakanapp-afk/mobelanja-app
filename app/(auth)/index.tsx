@@ -1,9 +1,11 @@
 import useSocialAuth from '@/hooks/useSocialAuth';
+import { useWarmUpBrowser } from '@/hooks/useWarmUpBrowser';
 import React from 'react';
 import { ActivityIndicator, Image, Text, TouchableOpacity, View } from 'react-native';
 import "../global.css";
 
 const AuthScreen = () => {
+  useWarmUpBrowser();
   const { loadingStrategy, handleSocialAuth } = useSocialAuth();
   return (
     <View className='flex-1 justify-center items-center bg-white'>
@@ -40,7 +42,7 @@ const AuthScreen = () => {
         </TouchableOpacity>
 
         {/* FACEBOOK SIGN IN */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           className="flex-row items-center justify-center bg-white border border-gray-300 rounded-full px-6 py-3"
           onPress={() => handleSocialAuth("oauth_facebook")}
           disabled={loadingStrategy !== null}
@@ -62,7 +64,7 @@ const AuthScreen = () => {
               <Text className="text-black font-medium text-base">Masuk Dengan Facebook</Text>
             </View>
           )}
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <Text className="text-center text-gray-500 text-xs leading-4 mt-6 px-8">
